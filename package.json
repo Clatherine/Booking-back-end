@@ -18,5 +18,26 @@
   "bugs": {
     "url": "https://github.com/Clatherine/Booking-back-end/issues"
   },
-  "homepage": "https://github.com/Clatherine/Booking-back-end#readme"
+  "homepage": "https://github.com/Clatherine/Booking-back-end#readme",
+  "devDependencies": {
+    "jest": "^27.5.1",
+    "jest-extended": "^2.0.0",
+    "supertest": "^7.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.19.2",
+    "husky": "^8.0.3",
+    "i": "^0.3.7",
+    "jest-sorted": "^1.0.15",
+    "pg": "^8.7.3",
+    "pg-format": "^1.0.4"
+  },
+  "jest": {
+    "setupFilesAfterEnv": [
+      "jest-extended/all",
+      "jest-sorted"
+    ]
+  }
 }
