@@ -1,0 +1,5 @@
+DROP DATABASE IF EXISTS booking_test;
+DROP DATABASE IF EXISTS booking;
+
+CREATE DATABASE booking_test;
+CREATE DATABASE booking;
