@@ -13,18 +13,17 @@ const seed = ({ bookingsData, tablesData }) => {
       CREATE TABLE bookings (
         booking_id SERIAL PRIMARY KEY,
         name VARCHAR NOT NULL,
-        number_of_guests NUMBER NOT NULL,
+        number_of_guests INT NOT NULL,
         date DATE NOT NULL,
         time TIME NOT NULL,
         notes VARCHAR
       );`);
 
       const tablesTablePromise = db.query(`
-      CREATE TABLE table (
+      CREATE TABLE tables (
       table_id SERIAL PRIMARY KEY,
-       capacity NUMBER NOT NULL,
+       capacity INT NOT NULL,
        notes VARCHAR
-
        );`);
 
       return Promise.all([bookingsTablePromise, tablesTablePromise]);
