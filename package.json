@@ -1,0 +1,22 @@
+{
+  "name": "booking-back-end",
+  "version": "1.0.0",
+  "description": "booking-back-end",
+  "main": "listen.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Clatherine/Booking-back-end.git"
+  },
+  "keywords": [
+    "booking"
+  ],
+  "author": "Clatherine",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Clatherine/Booking-back-end/issues"
+  },
+  "homepage": "https://github.com/Clatherine/Booking-back-end#readme"
+}
