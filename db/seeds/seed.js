@@ -2,7 +2,7 @@ const format = require("pg-format");
 const db = require("../connection");
 
 
-const seed = ({ topicData, userData, articleData, commentData }) => {
+const seed = ({ bookingsData, tablesData }) => {
   return db
     .query(`DROP TABLE IF EXISTS bookings;`)
     .then(() => {
@@ -32,7 +32,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
     .then(() => {
       const insertBookingsQueryStr = format(
         "INSERT INTO bookings (name, number_of_guests, date, time, notes) VALUES %L;",
-        bookingData.map(({ name, number_of_guests, date, time, notes }) => [
+        bookingsData.map(({ name, number_of_guests, date, time, notes }) => [
           name,
           number_of_guests,
           date,
@@ -44,7 +44,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
 
       const insertTablesQueryStr = format(
         "INSERT INTO tables ( capacity, notes) VALUES %L;",
-        userData.map(({ capacity, notes }) => [capacity, notes])
+        tablesData.map(({ capacity, notes }) => [capacity, notes])
       );
       const tablesPromise = db.query(insertTablesQueryStr);
 
