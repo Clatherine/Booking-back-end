@@ -1,21 +1,20 @@
 const express = require("express");
 const cors = require("cors");
 const {getTables} = require("./controllers/tables.controller")
-const {getBookings, deleteBooking, postBooking,  patchBookingDetails, getBookingsByTableAndDate, getBookingsByDate} = require("./controllers/bookings.controller")
+const {getBookings, deleteBooking, postBooking,  patchBookingDetails, getBookingsByTableAndDate, getBookingsByDate, getTablesByCapacity} = require("./controllers/bookings.controller")
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
+app.get("/api/tables/:capacity", getTablesByCapacity);
+
 app.get('/api/tables', getTables)
-
-
 
 app.get("/api/bookings/date/:date/:table_id", getBookingsByTableAndDate);
 
 app.get("/api/bookings/date/:date", getBookingsByDate);
-
 
 app.delete("/api/bookings/:booking_id", deleteBooking)
 

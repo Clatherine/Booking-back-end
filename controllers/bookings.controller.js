@@ -1,4 +1,4 @@
-const { fetchBookings, fetchBookingById, removeBooking, addBooking, updateBookingDetails, fetchBookingsByTableAndDate, fetchBookingsByDate } = require("../models/bookings.model");
+const { fetchBookings, fetchBookingById, removeBooking, addBooking, updateBookingDetails, fetchBookingsByTableAndDate, fetchBookingsByDate, fetchTablesByCapacity } = require("../models/bookings.model");
 const db = require("../db/connection");
 
 exports.getBookings = (req, res, next) => {
@@ -110,3 +110,11 @@ exports.getBookingsByTableAndDate = (req,res,next) => {
       .catch(next);
 }
 
+exports.getTablesByCapacity = (req,res,next)=>{
+  const {capacity} = req.params;
+  fetchTablesByCapacity(capacity)
+  .then((tables)=>{
+    res.status(200).send({tables})
+  })
+  .catch(next)
+}

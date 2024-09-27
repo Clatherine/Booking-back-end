@@ -138,3 +138,18 @@ exports.fetchBookingsByTableAndDate = (date, table_id) => {
     });
 };
 
+
+exports.fetchTablesByCapacity = (capacity) =>{
+  return db
+    .query(`SELECT * FROM tables WHERE capacity >= $1`, [capacity])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "No tables with sufficient capacity",
+        });
+      } else {
+        return rows;
+      }
+    });
+}

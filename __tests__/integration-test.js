@@ -260,4 +260,30 @@ describe("GET /api/bookings/date/:date/table_id", () => {
   });
 });
 
+describe("GET /api/tables/:capacity", () => {
+  test("200 status code: returns array of all tables at or above a given capacity", () => {
+    return request(app)
+      .get("/api/tables/5")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.tables.length).toBe(3);
+        body.tables.forEach((table) => {
+          expect(table).toMatchObject({
+           capacity: expect.any(Number),
+});
+
+expect(table.capacity).toBeGreaterThanOrEqual(5);
+        });
+      });})
+  test("404 status code: message of 'No tables with sufficient capacity'", () => {
+    return request(app)
+      .get("/api/tables/20")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No tables with sufficient capacity");
+      });
+  });
+});
+
+
 
