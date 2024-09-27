@@ -1,10 +1,13 @@
 const express = require("express");
 const cors = require("cors");
+const {getTables} = require("./controllers/tables.controller")
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.get('/api/tables', getTables)
 
 // Catch all invalid paths
 app.all("*", (req, res) => {

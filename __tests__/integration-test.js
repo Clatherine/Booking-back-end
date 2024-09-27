@@ -19,3 +19,23 @@ describe("Invalid paths", () => {
       });
   });
 });
+
+describe("GET /api/tables", () => {
+  test("200 status code: returns array of all tables", () => {
+    return request(app)
+      .get("/api/tables")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.tables.length).toBe(4);
+        body.tables.forEach((table) => {
+          expect(table).toMatchObject({
+            table_id: expect.any(Number),
+            capacity: expect.any(Number),
+            notes: expect.toSatisfy(
+              (val) => typeof val === "string" || val === null
+            ),
+          });
+        });
+      });
+  });
+});
