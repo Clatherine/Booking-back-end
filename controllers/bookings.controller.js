@@ -21,20 +21,15 @@ exports.deleteBooking = (req, res, next) => {
 }
 
 exports.postBooking = (req, res, next) =>{
-console.log(req, "req");
   const {body} = req
-
 const name = body.name
 const number_of_guests = body.number_of_guests
 const date = body.date
-const start_time = body. start_time
-console.log('here')
+const start_time = body.start_time
 if (!name || !number_of_guests || !date || !start_time){
-  console.log(' if here')
   res.status(400).send({msg: "Incomplete POST request: one or more required fields missing data"})
 }
 else {
-  console.log('entering here')
   addBooking(body)
     .then((addedBooking) => {
       res.status(201).send({ addedBooking });

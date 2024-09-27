@@ -24,6 +24,7 @@ app.all("*", (req, res) => {
 
 // Custom error handler for known errors
 app.use((err, req, res, next) => {
+  console.error(err)
   if (err.status && err.msg) {
     res.status(err.status).send({ msg: err.msg });
   } else {

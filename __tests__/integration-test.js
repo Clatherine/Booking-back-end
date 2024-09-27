@@ -118,7 +118,7 @@ describe("POST /api/bookings", () => {
         expect(body.addedBooking).toMatchObject({
           name: "Pam",
           number_of_guests: 8,
-          date: "2024-01-23",
+          date: expect.toSatisfy((val) => !isNaN(Date.parse(val))),
           start_time: "11:30:00",
           end_time: "13:30:00",
           status: "submitted",

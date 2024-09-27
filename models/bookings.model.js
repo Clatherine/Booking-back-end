@@ -1,4 +1,6 @@
 const db = require("../db/connection");
+const fs = require("fs/promises");
+const format = require("pg-format");
 
 exports.fetchBookings = () => {
   return db
@@ -27,11 +29,9 @@ exports.removeBooking = (booking_id) => {
 }
 
 exports.addBooking = (booking) =>{
-  console.log(booking, 'booking')
 const valuesArr = [[booking.name, booking.number_of_guests, booking.date, booking.start_time, booking.end_time, booking.status, booking.notes]]
 const formattedQuery = format("INSERT INTO bookings(name, number_of_guests, date, start_time, end_time, status, notes) VALUES %L RETURNING *", valuesArr)
     return db.query(formattedQuery).then(({ rows }) => {
-      console.log(rows, 'rows')
       return rows[0];
     });
 }
