@@ -39,3 +39,35 @@ describe("GET /api/tables", () => {
       });
   });
 });
+
+describe("GET /api/bookings", () => {
+  test("200 status code: returns array of all bookings", () => {
+    return request(app)
+      .get("/api/bookings")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.bookings.length).toBe(6);
+        body.bookings.forEach((booking) => {
+          expect(booking).toMatchObject({
+            booking_id: expect.any(Number),
+            name: expect.any(String),
+            number_of_guests: expect.any(Number),
+            date: expect.toSatisfy(
+              (val) => !isNaN(Date.parse(val)) 
+            ),
+            start_time: expect.toSatisfy((val) => {
+              const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
+              return timeRegex.test(val);
+            }),
+            end_time: expect.toSatisfy((val) => {
+              const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
+              return timeRegex.test(val);
+            }),
+            notes: expect.toSatisfy(
+              (val) => typeof val === "string" || val === null
+            ),
+          });
+        });
+      });
+  });
+});
