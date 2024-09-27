@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const {getTables} = require("./controllers/tables.controller")
-const {getBookings, deleteBooking, postBooking, patchBookingStatus} = require("./controllers/bookings.controller")
+const {getBookings, deleteBooking, postBooking,  patchBookingDetails} = require("./controllers/bookings.controller")
 
 const app = express();
 
@@ -16,7 +16,8 @@ app.delete("/api/bookings/:booking_id", deleteBooking)
 
 app.post("/api/bookings", postBooking)
 
-app.patch("/api/bookings/:booking_id", patchBookingStatus)
+
+app.patch("/api/bookings/:booking_id", patchBookingDetails)
 
 // app.patch("/api/bookings/:booking_id", patchBookingStartTime) // to complete
 
@@ -48,7 +49,6 @@ app.use((err, req, res, next) => {
 
 // General error handler for uncaught errors
 app.use((err, req, res, next) => {
-  console.error(err.stack); 
   res.status(500).send({ msg: "Internal Server Error" });
 });
 

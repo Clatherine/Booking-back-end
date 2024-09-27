@@ -5,8 +5,15 @@ const seed = require("../db/seeds/seed.js");
 const testData = require("../db/data/test-data/index.js");
 
 beforeEach(() => {
-  return seed(testData);
+  return seed(testData).then(() => {
+    return db.query("BEGIN;"); // Start transaction
+  });
 });
+
+afterEach(() => {
+  return db.query("ROLLBACK;"); // Rollback transaction
+});
+
 afterAll(() => db.end());
 
 describe("Invalid paths", () => {
@@ -74,33 +81,6 @@ describe("GET /api/bookings", () => {
   });
 });
 
-describe("DELETE /api/bookings/:booking_id", () => {
-  test("status 204, no response", () => {
-    return request(app)
-      .delete("/api/bookings/1")
-      .expect(204)
-      .then((response) => {
-        expect(Object.keys(response)).not.toInclude("body");
-      });
-  });
-  test('status 404, responds with "That booking does not exist!" if passed a booking_id that doesn\'t exist', () => {
-    return request(app)
-      .delete("/api/bookings/30")
-      .expect(404)
-      .then(({ body }) => {
-        expect(body.msg).toBe("That booking does not exist!");
-      });
-  });
-  test('status 400, responds with "Invalid input: expected a number" if passed a booking_id that is not a number', () => {
-    return request(app)
-      .delete("/api/bookings/three")
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Invalid input: expected a number");
-      });
-  });
-});
-
 describe("POST /api/bookings", () => {
   test("201 status code: responds with the posted booking", () => {
     return request(app)
@@ -142,30 +122,91 @@ describe("POST /api/bookings", () => {
   });
 })
 
-describe("PATCH /api/bookings/:booking_id", () => {
-  test("200 status: updates booking status and requires table_id if status is not submitted", () => {
-    return request(app)
-      .patch("/api/bookings/1")
-      .send({ status: "confirmed", table_id: 3 })
-      .expect(200)
-      .then(({ body }) => {
-        expect(body.updatedBooking).toMatchObject({
-          booking_id: 1,
-          status: "confirmed",
-          table_id: 3,
+  describe("DELETE /api/bookings/:booking_id", () => {
+    test("status 204, no response", () => {
+      return request(app)
+        .delete("/api/bookings/1")
+        .expect(204)
+        .then((response) => {
+         expect(response.body).toEqual({}); 
         });
-      });
+    });
+    test('status 404, responds with "That booking does not exist!" if passed a booking_id that doesn\'t exist', () => {
+      return request(app)
+        .delete("/api/bookings/30")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("That booking does not exist!");
+        });
+    });
+    test('status 400, responds with "Invalid input: expected a number" if passed a booking_id that is not a number', () => {
+      return request(app)
+        .delete("/api/bookings/three")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid input: expected a number");
+        });
+    });
   });
 
-  test("400 status: returns error if table_id is missing when status is not submitted", () => {
-    return request(app)
-      .patch("/api/bookings/1")
-      .send({ status: "confirmed" }) // No table_id provided
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe(
-          'A table_id must be provided when the status is not "submitted".'
-        );
-      });
+  describe("PATCH /api/bookings/:booking_id", () => {
+    test("200 status: updates booking status and requires table_id if status is not submitted", () => {
+      return request(app)
+        .patch("/api/bookings/1")
+        .send({ status: "confirmed", table_id: 3 })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.updatedBooking).toMatchObject({
+            booking_id: 1,
+            status: "confirmed",
+            table_id: 3,
+          });
+        });
+    });
+
+    test("400 status: returns error if table_id is missing when status is not submitted", () => {
+      return request(app)
+        .patch("/api/bookings/1")
+        .send({ status: "confirmed" }) // No table_id provided
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe(
+            'A table_id must be provided when the status is not "submitted".'
+          );
+        });
+    });
+
+    test("200 status: updates the number of guests", ()=>{
+      return request(app)
+      .patch("/api/bookings/2")
+      .send({number_of_guests: 2})
+      .expect(200)
+      .then(({body})=>{
+        expect(body.updatedBooking).toMatchObject({
+          number_of_guests: 2
+        })
+      })
+    });
+       test("200 status: updates the date", () => {
+         return request(app)
+           .patch("/api/bookings/2")
+           .send({ date: "2024-02-02" })
+           .expect(200)
+           .then(({ body }) => {
+             expect(body.updatedBooking).toMatchObject({
+               date: expect.any(String)
+             });
+           });
+       });
+          test("200 status: updates the start_time", () => {
+            return request(app)
+              .patch("/api/bookings/2")
+              .send({ start_time: "13:30:00" })
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.updatedBooking).toMatchObject({
+                  start_time: "13:30:00",
+                });
+              });
+          });
   });
-});

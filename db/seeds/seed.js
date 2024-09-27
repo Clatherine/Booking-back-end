@@ -25,15 +25,13 @@ const seed = ({ bookingsData, tablesData }) => {
         end_time TIME NOT NULL,
         status VARCHAR DEFAULT 'submitted',
         notes VARCHAR,
-        table_id INT REFERENCES tables(table_id) 
+        table_id INT REFERENCES tables(table_id) ON DELETE SET NULL DEFAULT NULL
       );`);})
     .then(() => {  const insertTablesQueryStr = format(
       "INSERT INTO tables ( capacity, notes) VALUES %L;",
       tablesData.map(({ capacity, notes }) => [capacity, notes])
     );
-    const tablesPromise = db.query(insertTablesQueryStr);
-
-      const insertBookingsQueryStr = format(
+    return db.query(insertTablesQueryStr);}).then(()=>{    const insertBookingsQueryStr = format(
         "INSERT INTO bookings (name, number_of_guests, date, start_time, end_time, status, notes, table_id) VALUES %L;",
         bookingsData.map(({ name, number_of_guests, date, start_time, end_time, status, notes, table_id }) => [
           name,
@@ -46,11 +44,7 @@ const seed = ({ bookingsData, tablesData }) => {
           table_id
         ])
       );
-      const bookingsPromise = db.query(insertBookingsQueryStr);
-
-    
-
-      return Promise.all([tablesPromise, bookingsPromise]);
+      return db.query(insertBookingsQueryStr);
     })
 };
 
