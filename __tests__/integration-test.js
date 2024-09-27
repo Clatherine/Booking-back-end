@@ -126,5 +126,17 @@ describe("POST /api/bookings", () => {
         });
       });
   });
-
+  test('400 status code: "Incomplete POST request: one or more required fields missing data" when sent a post request lacking a required key', () => {
+    return request(app)
+      .post("/api/bookings")
+      .send({
+        name: "Pam",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe(
+          "Incomplete POST request: one or more required fields missing data"
+        );
+      });
+  });
 })
