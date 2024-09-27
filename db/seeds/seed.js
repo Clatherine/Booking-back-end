@@ -17,6 +17,7 @@ const seed = ({ bookingsData, tablesData }) => {
         date DATE NOT NULL,
         start_time TIME NOT NULL,
         end_time TIME NOT NULL,
+        status VARCHAR DEFAULT 'submitted',
         notes VARCHAR
       );`);
 
@@ -31,13 +32,14 @@ const seed = ({ bookingsData, tablesData }) => {
     })
     .then(() => {
       const insertBookingsQueryStr = format(
-        "INSERT INTO bookings (name, number_of_guests, date, start_time, end_time, notes) VALUES %L;",
-        bookingsData.map(({ name, number_of_guests, date, start_time, end_time, notes }) => [
+        "INSERT INTO bookings (name, number_of_guests, date, start_time, end_time, status, notes) VALUES %L;",
+        bookingsData.map(({ name, number_of_guests, date, start_time, end_time, status, notes }) => [
           name,
           number_of_guests,
           date,
           start_time,
           end_time,
+          status,
           notes,
         ])
       );

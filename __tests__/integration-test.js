@@ -63,6 +63,7 @@ describe("GET /api/bookings", () => {
               const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
               return timeRegex.test(val);
             }),
+            status: expect.any(String),
             notes: expect.toSatisfy(
               (val) => typeof val === "string" || val === null
             ),
@@ -71,3 +72,59 @@ describe("GET /api/bookings", () => {
       });
   });
 });
+
+describe("DELETE /api/bookings/:booking_id", () => {
+  test("status 204, no response", () => {
+    return request(app)
+      .delete("/api/bookings/1")
+      .expect(204)
+      .then((response) => {
+        expect(Object.keys(response)).not.toInclude("body");
+      });
+  });
+  test('status 404, responds with "That booking does not exist!" if passed a booking_id that doesn\'t exist', () => {
+    return request(app)
+      .delete("/api/bookings/30")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("That booking does not exist!");
+      });
+  });
+  test('status 400, responds with "Invalid input: expected a number" if passed a booking_id that is not a number', () => {
+    return request(app)
+      .delete("/api/bookings/three")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid input: expected a number");
+      });
+  });
+});
+
+describe("POST /api/bookings", () => {
+  test("201 status code: responds with the posted booking", () => {
+    return request(app)
+      .post("/api/bookings")
+      .send({
+    name: "Pam",
+    number_of_guests: 8,
+    date: "2024-01-23",
+    start_time: "11:30:00",
+    end_time: "13:30:00",
+    status: 'submitted',
+    notes: "dairy allergy",
+  })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.addedBooking).toMatchObject({
+          name: "Pam",
+          number_of_guests: 8,
+          date: "2024-01-23",
+          start_time: "11:30:00",
+          end_time: "13:30:00",
+          status: "submitted",
+          notes: "dairy allergy",
+        });
+      });
+  });
+
+})

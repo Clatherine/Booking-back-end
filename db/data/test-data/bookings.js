@@ -4,6 +4,7 @@ module.exports = [
     number_of_guests: 5,
     date: "2024-01-23",
     start_time: "15:30:00",
+    status: "submitted",
     end_time: "17:30:00",
   },
   {
@@ -12,6 +13,7 @@ module.exports = [
     date: "2024-01-23",
     start_time: "15:30:00",
     end_time: "17:30:00",
+    status: "submitted",
     notes: "gluten free guest",
   },
   {
@@ -20,6 +22,7 @@ module.exports = [
     date: "2024-01-23",
     start_time: "12:30:00",
     end_time: "14:30:00",
+    status: "confirmed",
     notes: "nut allergy",
   },
   {
@@ -28,6 +31,7 @@ module.exports = [
     date: "2024-01-23",
     start_time: "12:00:00",
     end_time: "14:00:00",
+    status: "confirmed",
     notes: "wheelchair user",
   },
   {
@@ -35,6 +39,7 @@ module.exports = [
     number_of_guests: 2,
     date: "2024-01-23",
     start_time: "12:00:00",
+    status: "confirmed",
     end_time: "14:00:00",
   },
   {
@@ -42,6 +47,7 @@ module.exports = [
     number_of_guests: 3,
     date: "2024-01-23",
     start_time: "13:00:00",
+    status: "submitted",
     end_time: "15:30:00",
   },
 ];
