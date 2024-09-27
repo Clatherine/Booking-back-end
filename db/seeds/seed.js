@@ -9,7 +9,13 @@ const seed = ({ bookingsData, tablesData }) => {
       return db.query(`DROP TABLE IF EXISTS tables;`);
     })
     .then(() => {
-      const bookingsTablePromise = db.query(`
+       return db.query(`
+      CREATE TABLE tables (
+      table_id SERIAL PRIMARY KEY,
+       capacity INT NOT NULL,
+       notes VARCHAR
+       );`);})
+       .then(()=>{  return db.query(`
       CREATE TABLE bookings (
         booking_id SERIAL PRIMARY KEY,
         name VARCHAR NOT NULL,
@@ -18,22 +24,18 @@ const seed = ({ bookingsData, tablesData }) => {
         start_time TIME NOT NULL,
         end_time TIME NOT NULL,
         status VARCHAR DEFAULT 'submitted',
-        notes VARCHAR
-      );`);
+        notes VARCHAR,
+        table_id INT REFERENCES tables(table_id) 
+      );`);})
+    .then(() => {  const insertTablesQueryStr = format(
+      "INSERT INTO tables ( capacity, notes) VALUES %L;",
+      tablesData.map(({ capacity, notes }) => [capacity, notes])
+    );
+    const tablesPromise = db.query(insertTablesQueryStr);
 
-      const tablesTablePromise = db.query(`
-      CREATE TABLE tables (
-      table_id SERIAL PRIMARY KEY,
-       capacity INT NOT NULL,
-       notes VARCHAR
-       );`);
-
-      return Promise.all([bookingsTablePromise, tablesTablePromise]);
-    })
-    .then(() => {
       const insertBookingsQueryStr = format(
-        "INSERT INTO bookings (name, number_of_guests, date, start_time, end_time, status, notes) VALUES %L;",
-        bookingsData.map(({ name, number_of_guests, date, start_time, end_time, status, notes }) => [
+        "INSERT INTO bookings (name, number_of_guests, date, start_time, end_time, status, notes, table_id) VALUES %L;",
+        bookingsData.map(({ name, number_of_guests, date, start_time, end_time, status, notes, table_id }) => [
           name,
           number_of_guests,
           date,
@@ -41,17 +43,14 @@ const seed = ({ bookingsData, tablesData }) => {
           end_time,
           status,
           notes,
+          table_id
         ])
       );
       const bookingsPromise = db.query(insertBookingsQueryStr);
 
-      const insertTablesQueryStr = format(
-        "INSERT INTO tables ( capacity, notes) VALUES %L;",
-        tablesData.map(({ capacity, notes }) => [capacity, notes])
-      );
-      const tablesPromise = db.query(insertTablesQueryStr);
+    
 
-      return Promise.all([bookingsPromise, tablesPromise]);
+      return Promise.all([tablesPromise, bookingsPromise]);
     })
 };
 

@@ -1,4 +1,4 @@
-const { fetchBookings, removeBooking, addBooking } = require("../models/bookings.model");
+const { fetchBookings, removeBooking, addBooking, updateBookingStatus } = require("../models/bookings.model");
 
 exports.getBookings = (req, res, next) => {
   fetchBookings()
@@ -35,7 +35,15 @@ else {
       res.status(201).send({ addedBooking });
     })
     .catch(next);
-    
-}
- 
-}
+}}
+
+exports.patchBookingStatus = (req, res, next) => {
+  const { booking_id } = req.params;
+  const { status, table_id } = req.body;
+
+  updateBookingStatus(booking_id, status, table_id)
+    .then((updatedBooking) => {
+      res.status(200).send({ updatedBooking });
+    })
+    .catch(next);
+};

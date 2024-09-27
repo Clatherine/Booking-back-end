@@ -64,6 +64,7 @@ describe("GET /api/bookings", () => {
               return timeRegex.test(val);
             }),
             status: expect.any(String),
+            // table_id: expect.any(Number||null),
             notes: expect.toSatisfy(
               (val) => typeof val === "string" || val === null
             ),
@@ -140,3 +141,31 @@ describe("POST /api/bookings", () => {
       });
   });
 })
+
+describe("PATCH /api/bookings/:booking_id", () => {
+  test("200 status: updates booking status and requires table_id if status is not submitted", () => {
+    return request(app)
+      .patch("/api/bookings/1")
+      .send({ status: "confirmed", table_id: 3 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.updatedBooking).toMatchObject({
+          booking_id: 1,
+          status: "confirmed",
+          table_id: 3,
+        });
+      });
+  });
+
+  // test("400 status: returns error if table_id is missing when status is not submitted", () => {
+  //   return request(app)
+  //     .patch("/api/bookings/1")
+  //     .send({ status: "confirmed" }) // No table_id provided
+  //     .expect(400)
+  //     .then(({ body }) => {
+  //       expect(body.msg).toBe(
+  //         'A table_id must be provided when the status is not "submitted".'
+  //       );
+  //     });
+  // });
+});

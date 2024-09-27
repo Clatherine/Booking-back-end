@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const {getTables} = require("./controllers/tables.controller")
-const {getBookings, deleteBooking, postBooking} = require("./controllers/bookings.controller")
+const {getBookings, deleteBooking, postBooking, patchBookingStatus} = require("./controllers/bookings.controller")
 
 const app = express();
 
@@ -15,6 +15,11 @@ app.get("/api/bookings", getBookings);
 app.delete("/api/bookings/:booking_id", deleteBooking)
 
 app.post("/api/bookings", postBooking)
+
+app.patch("api/bookings/:booking_id", patchBookingStatus)
+
+// app.patch("/api/bookings/:booking_id", patchBookingStartTime) // to complete
+
 
 // Catch all invalid paths
 app.all("*", (req, res) => {

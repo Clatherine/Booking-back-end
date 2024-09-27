@@ -6,6 +6,7 @@ module.exports = [
     start_time: "15:30:00",
     status: "submitted",
     end_time: "17:30:00",
+
   },
   {
     name: "Liz",
@@ -15,6 +16,7 @@ module.exports = [
     end_time: "17:30:00",
     status: "submitted",
     notes: "gluten free guest",
+ 
   },
   {
     name: "Pam",
@@ -24,6 +26,7 @@ module.exports = [
     end_time: "14:30:00",
     status: "confirmed",
     notes: "nut allergy",
+    table_id: 1,
   },
   {
     name: "Christy",
@@ -33,6 +36,7 @@ module.exports = [
     end_time: "14:00:00",
     status: "confirmed",
     notes: "wheelchair user",
+    table_id: 2,
   },
   {
     name: "Dan",
@@ -41,6 +45,7 @@ module.exports = [
     start_time: "12:00:00",
     status: "confirmed",
     end_time: "14:00:00",
+    table_id: 3,
   },
   {
     name: "Stu",
