@@ -1,5 +1,6 @@
 const db = require("../db/connection");
 const fs = require("fs/promises");
+const { DatabaseError } = require("pg");
 const format = require("pg-format");
 
 exports.fetchBookings = () => {
@@ -103,3 +104,37 @@ exports.updateBookingDetails = (booking_id, updates) => {
     return rows[0];
   });
 };
+
+exports.fetchBookingsByDate = (date) => {
+  return db
+    .query(`SELECT * FROM bookings WHERE date = $1`, [date])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "No bookings found for this date",
+        });
+      } else {
+        return rows;
+      }
+    });
+};
+
+exports.fetchBookingsByTableAndDate = (date, table_id) => {
+  return db
+    .query(`SELECT * FROM bookings WHERE date = $1 AND table_id = $2`, [
+      date,
+      table_id,
+    ])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "No bookings found for this table on the specified date",
+        });
+      } else {
+        return rows;
+      }
+    });
+};
+

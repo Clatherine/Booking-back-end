@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const {getTables} = require("./controllers/tables.controller")
-const {getBookings, deleteBooking, postBooking,  patchBookingDetails} = require("./controllers/bookings.controller")
+const {getBookings, deleteBooking, postBooking,  patchBookingDetails, getBookingsByTableAndDate, getBookingsByDate} = require("./controllers/bookings.controller")
 
 const app = express();
 
@@ -10,16 +10,26 @@ app.use(express.json());
 
 app.get('/api/tables', getTables)
 
-app.get("/api/bookings", getBookings);
+
+
+app.get("/api/bookings/date/:date/:table_id", getBookingsByTableAndDate);
+
+app.get("/api/bookings/date/:date", getBookingsByDate);
+
 
 app.delete("/api/bookings/:booking_id", deleteBooking)
 
-app.post("/api/bookings", postBooking)
+app.get("/api/bookings", getBookings);
 
+app.post("/api/bookings", postBooking)
 
 app.patch("/api/bookings/:booking_id", patchBookingDetails)
 
-// app.patch("/api/bookings/:booking_id", patchBookingStartTime) // to complete
+
+
+
+
+// app.get("/api/bookings/:date/:start_time/:end_time", getBookingsByDateAndTime)
 
 
 // Catch all invalid paths

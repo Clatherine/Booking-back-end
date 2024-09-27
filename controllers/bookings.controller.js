@@ -1,4 +1,4 @@
-const { fetchBookings, fetchBookingById, removeBooking, addBooking, updateBookingDetails } = require("../models/bookings.model");
+const { fetchBookings, fetchBookingById, removeBooking, addBooking, updateBookingDetails, fetchBookingsByTableAndDate, fetchBookingsByDate } = require("../models/bookings.model");
 const db = require("../db/connection");
 
 exports.getBookings = (req, res, next) => {
@@ -10,7 +10,6 @@ exports.getBookings = (req, res, next) => {
       next(err);
     });
 };
-
 
 exports.deleteBooking = (req, res, next) => {
   const {booking_id} = req.params
@@ -92,3 +91,22 @@ exports.patchBookingDetails = (req, res, next) => {
     })
     .catch(next);
 };
+exports.getBookingsByDate = (req, res, next) => {
+  const { date } = req.params;
+  console.log(date, "date");
+  fetchBookingsByDate(date)
+    .then((bookings) => {
+      res.status(200).send({ bookings });
+    })
+    .catch(next);
+};
+
+exports.getBookingsByTableAndDate = (req,res,next) => {
+    const { date, table_id } = req.params;
+    fetchBookingsByTableAndDate(date, table_id)
+      .then((bookings) => {
+        res.status(200).send({ bookings });
+      })
+      .catch(next);
+}
+
