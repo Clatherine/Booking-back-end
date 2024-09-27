@@ -16,7 +16,7 @@ app.delete("/api/bookings/:booking_id", deleteBooking)
 
 app.post("/api/bookings", postBooking)
 
-app.patch("api/bookings/:booking_id", patchBookingStatus)
+app.patch("/api/bookings/:booking_id", patchBookingStatus)
 
 // app.patch("/api/bookings/:booking_id", patchBookingStartTime) // to complete
 

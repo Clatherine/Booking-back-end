@@ -38,9 +38,10 @@ else {
 }}
 
 exports.patchBookingStatus = (req, res, next) => {
+  console.log('here')
   const { booking_id } = req.params;
   const { status, table_id } = req.body;
-
+console.log(booking_id, 'booking id')
   updateBookingStatus(booking_id, status, table_id)
     .then((updatedBooking) => {
       res.status(200).send({ updatedBooking });

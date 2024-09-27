@@ -157,15 +157,15 @@ describe("PATCH /api/bookings/:booking_id", () => {
       });
   });
 
-  // test("400 status: returns error if table_id is missing when status is not submitted", () => {
-  //   return request(app)
-  //     .patch("/api/bookings/1")
-  //     .send({ status: "confirmed" }) // No table_id provided
-  //     .expect(400)
-  //     .then(({ body }) => {
-  //       expect(body.msg).toBe(
-  //         'A table_id must be provided when the status is not "submitted".'
-  //       );
-  //     });
-  // });
+  test("400 status: returns error if table_id is missing when status is not submitted", () => {
+    return request(app)
+      .patch("/api/bookings/1")
+      .send({ status: "confirmed" }) // No table_id provided
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe(
+          'A table_id must be provided when the status is not "submitted".'
+        );
+      });
+  });
 });
