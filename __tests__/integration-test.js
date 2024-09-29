@@ -333,7 +333,7 @@ describe("GET /api/bookings/date/:date", () => {
   });
 });
 
-describe("GET /api/bookings/date/:date/table_id", () => {
+describe("GET /api/bookings/date/:date/:table_id", () => {
   test("200 status code: returns array of all bookings on a given table at a given date", () => {
     return request(app)
       .get("/api/bookings/date/2024-01-23/1")
@@ -412,7 +412,7 @@ describe("GET /api/bookings/:booking_id", () => {
   });
 });
 
-describe("GET /api/bookings/date/:date/timeslot/:start_time/:end_time", () => {
+describe("GET /api/bookings/timeslot/:start_time/:end_time", () => {
   test("200 status code: returns bookings within a specific timeslot", () => {
     return request(app)
       .get("/api/bookings/timeslot/2024-01-23 12:30:00/2024-01-23 14:30:00")

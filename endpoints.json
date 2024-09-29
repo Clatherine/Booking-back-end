@@ -1,0 +1,168 @@
+{
+  "GET /api": {
+    "description": "serves up a json representation of all the available endpoints of the api"
+  },
+  "GET /api/tables": {
+    "description": "serves an array of all tables",
+    "queries": [],
+    "exampleResponse": {
+      "topics": [{ "table_id": "1", "capacity": "2", "notes": "by window" }]
+    }
+  },
+  "GET /api/bookings": {
+    "description": "serves an array of all bookings",
+    "queries": [],
+    "exampleResponse": {
+      "bookings": [
+        {
+          "booking_id": "1",
+          "name": "Andy",
+          "number_of_guests": "6",
+          "start_time": "2024-01-23 15:30:00",
+          "end_time": "2024-01-23 17:30:00",
+          "status": "submitted",
+          "notes": "gluten free guest"
+        },
+        {
+          "booking_id": "2",
+          "name": "Sarah",
+          "number_of_guests": "3",
+          "start_time": "2024-01-23 15:30:00",
+          "end_time": "2024-01-23 17:30:00",
+          "status": "confirmed",
+          "table_id": 4
+        }
+      ]
+    }
+  },
+  "POST /api/bookings": {
+    "description": "adds a booking to the bookings table",
+    "queries": [],
+    "exampleResponse": {
+      "name": "Pam",
+      "number_of_guests": 3,
+      "start_time": "2024-01-23 11:30:00",
+      "end_time": "2024-01-23 13:30:00",
+      "status": "confirmed",
+      "table_id": 3,
+      "notes": "dairy allergy"
+    }
+  },
+  "DELETE /api/bookings/:booking_id": {
+    "description": "deletes a booking from bookings table according to booking id, returns no resoponse",
+    "queries": [],
+    "exampleResponse": {}
+  },
+  "PATCH /api/bookings/:booking_id": {
+    "description": "updates any key on a booking, requires a table_id if status is not submitted",
+    "queries": [],
+    "exampleResponse": {
+      "name": "Pam",
+      "number_of_guests": 3,
+      "start_time": "2024-01-23 11:30:00",
+      "end_time": "2024-01-23 13:30:00",
+      "status": "confirmed",
+      "table_id": 3,
+      "notes": "dairy allergy"
+    }
+  },
+  "GET /api/bookings/date/:date": {
+    "description": "returns array of all bookings on a given date",
+    "queries": [],
+    "exampleResponse": {
+      "bookings": [
+        {
+          "booking_id": "1",
+          "name": "Andy",
+          "number_of_guests": "6",
+          "start_time": "2024-01-23 15:30:00",
+          "end_time": "2024-01-23 17:30:00",
+          "status": "submitted",
+          "notes": "gluten free guest"
+        },
+        {
+          "booking_id": "2",
+          "name": "Sarah",
+          "number_of_guests": "3",
+          "start_time": "2024-01-23 15:30:00",
+          "end_time": "2024-01-23 17:30:00",
+          "status": "confirmed",
+          "table_id": 4
+        }
+      ]
+    }
+  },
+  "GET /api/bookings/date/:date/:table_id": {
+    "description": "returns array of all bookings on a given date on a given table",
+    "queries": [],
+    "exampleResponse": {
+      " bookings": [
+        {
+          "booking_id": "1",
+          "name": "Andy",
+          "number_of_guests": "6",
+          "start_time": "2024-01-23 11:30:00",
+          "end_time": "2024-01-23 13:30:00",
+          "status": "submitted",
+          "table_id": 2,
+          "notes": "gluten free guest"
+        },
+        {
+          "booking_id": "2",
+          "name": "Sarah",
+          "number_of_guests": "3",
+          "start_time": "2024-01-23 15:30:00",
+          "end_time": "2024-01-23 17:30:00",
+          "status": "confirmed",
+          "table_id": 2
+        }
+      ]
+    }
+  },
+  "GET /api/tables/:capacity": {
+    "descritpion": "returns array of all tables at or above a given capacity",
+    "queries": [],
+    "exampleResponse": {
+      "tables": [
+        { "table_id: 3, capacity": 7, "notes": "by window" },
+        { "table_id": 2, "capacity": 5 }
+      ]
+    }
+  },
+  "GET /api/bookings/:booking_id": {
+    "description": "returns booking object corresponding to given booking_id",
+    "queries": [],
+    "exampleResponse": {
+      "name": "Pam",
+      "number_of_guests": 7,
+      "start_time": "2024-01-23 12:30:00",
+      "end_time": "2024-01-23 14:30:00",
+      "status": "confirmed",
+      "notes": "nut allergy",
+      "table_id": 1
+    }
+  },
+  "GET /api/bookings/timeslot/:start_time/:end_time": {
+    "description": "returns array of all bookings in a given timeslot",
+    "queries": [],
+    "exampleResponse": [
+      {
+        "name": "Pam",
+        "number_of_guests": 7,
+        "start_time": "2024-01-23 12:30:00",
+        "end_time": "2024-01-23 14:30:00",
+        "status": "confirmed",
+        "notes": "nut allergy",
+        "table_id": 1
+      },
+      {
+        "name": "Henry",
+        "number_of_guests": 8,
+        "start_time": "2024-01-23 12:30:00",
+        "end_time": "2024-01-23 14:30:00",
+        "status": "confirmed",
+        "table_id": 2
+      }
+    ]
+  }
+}
