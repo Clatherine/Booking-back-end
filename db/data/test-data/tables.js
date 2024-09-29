@@ -1,5 +1,5 @@
 module.exports = [
-{capacity: 6,
+{capacity: 7,
     notes: 'by window'
 },
 {

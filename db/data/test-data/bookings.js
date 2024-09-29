@@ -2,7 +2,6 @@ module.exports = [
   {
     name: "Mark",
     number_of_guests: 5,
-    // date: "2024-01-23",
     start_time: "2024-01-23 15:30:00",
     end_time: "2024-01-23 17:30:00",
     status: "submitted",
@@ -10,7 +9,6 @@ module.exports = [
   {
     name: "Liz",
     number_of_guests: 4,
-    // date: "2024-01-23",
     start_time: "2024-01-23 15:30:00",
     end_time: "2024-01-23 17:30:00",
     status: "submitted",
@@ -19,7 +17,6 @@ module.exports = [
   {
     name: "Pam",
     number_of_guests: 7,
-    date: "2024-01-23",
     start_time: "2024-01-23 12:30:00",
     end_time: "2024-01-23 14:30:00",
     status: "confirmed",
@@ -28,8 +25,7 @@ module.exports = [
   },
   {
     name: "Christy",
-    number_of_guests: 7,
-    // date: "2024-01-23",
+    number_of_guests: 3,
     start_time: "2024-01-23 12:00:00",
     end_time: "2024-01-23 14:00:00",
     status: "confirmed",
@@ -39,7 +35,6 @@ module.exports = [
   {
     name: "Dan",
     number_of_guests: 2,
-    // date: "2024-01-23",
     start_time: "2024-01-23 12:00:00",
     status: "confirmed",
     end_time: "2024-01-23 14:00:00",
@@ -48,7 +43,6 @@ module.exports = [
   {
     name: "Stu",
     number_of_guests: 3,
-    // date: "2024-01-23",
     start_time: "2024-01-23 13:00:00",
     status: "submitted",
     end_time: "2024-01-23 15:30:00",

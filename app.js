@@ -24,11 +24,11 @@ app.get("/api/tables/:capacity", getTablesByCapacity);
 
 app.get('/api/tables', getTables)
 
-app.get('/api/bookings/date/:date/timeslot/:start_time/:end_time', getBookingsByTimeSlot)
+app.get('/api/bookings/timeslot/:start_time/:end_time', getBookingsByTimeSlot)
 
-// app.get("/api/bookings/date/:date/:table_id", getBookingsByDateAndTable); -> need to update
+app.get("/api/bookings/date/:date/:table_id", getBookingsByDateAndTable); 
 
-// app.get("/api/bookings/date/:date", getBookingsByDate); --> need to update
+app.get("/api/bookings/date/:date", getBookingsByDate); 
 
 app.delete("/api/bookings/:booking_id", deleteBooking)
 
@@ -39,10 +39,6 @@ app.post("/api/bookings", postBooking)
 app.get("/api/bookings/:booking_id", getBookingById)
 
 app.patch("/api/bookings/:booking_id", patchBookingDetails)
-
-
-
-// app.get("/api/bookings/:date/:start_time/:end_time", getBookingsByDateAndTime)
 
 
 // Catch all invalid paths

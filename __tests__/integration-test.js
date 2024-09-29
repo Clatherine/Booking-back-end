@@ -62,7 +62,9 @@ describe("GET /api/bookings", () => {
             start_time: expect.any(String),
             end_time: expect.any(String),
             status: expect.any(String),
-             table_id: expect.toSatisfy((val) => typeof val === "number" || val === null),
+            table_id: expect.toSatisfy(
+              (val) => typeof val === "number" || val === null
+            ),
             notes: expect.toSatisfy(
               (val) => typeof val === "string" || val === null
             ),
@@ -73,7 +75,32 @@ describe("GET /api/bookings", () => {
 });
 
 describe("POST /api/bookings", () => {
-  test("201 status code: responds with the posted booking", () => {
+    test("201 status code: responds with the posted booking, no changes (has table_id, status already confirmed)", () => {
+      return request(app)
+        .post("/api/bookings")
+        .send({
+          name: "Pam",
+          number_of_guests: 3,
+          start_time: "2024-01-23 11:30:00",
+          end_time: "2024-01-23 13:30:00",
+          status: "confirmed",
+          table_id: 3,
+          notes: "dairy allergy",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.addedBooking).toMatchObject({
+            name: "Pam",
+            number_of_guests: 3,
+            start_time: "2024-01-23 11:30:00",
+            end_time: "2024-01-23 13:30:00",
+            status: "confirmed",
+            table_id: 3,
+            notes: "dairy allergy",
+          });
+        });
+    });
+  test("201 status code: responds with the posted booking, rejected due to capacity", () => {
     return request(app)
       .post("/api/bookings")
       .send({
@@ -91,11 +118,83 @@ describe("POST /api/bookings", () => {
           number_of_guests: 8,
           start_time: "2024-01-23 11:30:00",
           end_time: "2024-01-23 13:30:00",
-          status: "submitted",
+          status: "rejected",
           notes: "dairy allergy",
         });
       });
   });
+    test("201 status code: responds with the posted booking, confirmed and table added", () => {
+      return request(app)
+        .post("/api/bookings")
+        .send({
+          name: "Pam",
+          number_of_guests: 2,
+          start_time: "2024-01-23 11:30:00",
+          end_time: "2024-01-23 13:30:00",
+          status: "submitted",
+          notes: "dairy allergy",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.addedBooking).toMatchObject({
+            name: "Pam",
+            number_of_guests: 2,
+            start_time: "2024-01-23 11:30:00",
+            end_time: "2024-01-23 13:30:00",
+            status: "confirmed",
+            notes: "dairy allergy",
+            table_id: 4
+          });
+        });
+    });
+     test("201 status code: responds with the posted booking, rejected as no tables available", () => {
+       return request(app)
+         .post("/api/bookings")
+         .send({
+           name: "Pam",
+           number_of_guests: 7,
+           start_time: "2024-01-23 11:30:00",
+           end_time: "2024-01-23 13:30:00",
+           status: "submitted",
+           notes: "dairy allergy",
+         })
+         .expect(201)
+         .then(({ body }) => {
+           expect(body.addedBooking).toMatchObject({
+             name: "Pam",
+             number_of_guests: 7,
+             start_time: "2024-01-23 11:30:00",
+             end_time: "2024-01-23 13:30:00",
+             status: "rejected",
+             notes: "dairy allergy",
+           });
+         });
+     });
+     test("201 status code: responds with the posted booking, confirmed with smallest available table", () => {
+       return request(app)
+         .post("/api/bookings")
+         .send({
+           name: "Pam",
+           number_of_guests: 1,
+           start_time: "2024-01-24 11:30:00",
+           end_time: "2024-01-24 13:30:00",
+           status: "submitted",
+           notes: "dairy allergy",
+         })
+         .expect(201)
+         .then(({ body }) => {
+           expect(body.addedBooking).toMatchObject({
+             name: "Pam",
+             number_of_guests: 1,
+             start_time: "2024-01-24 11:30:00",
+             end_time: "2024-01-24 13:30:00",
+             status: "confirmed",
+             table_id: 3,
+             notes: "dairy allergy",
+           });
+         });
+     });
+
   test('400 status code: "Incomplete POST request: one or more required fields missing data" when sent a post request lacking a required key', () => {
     return request(app)
       .post("/api/bookings")
@@ -109,13 +208,13 @@ describe("POST /api/bookings", () => {
         );
       });
   });
-  test("201 status code: responds with the posted booking and adds an end time if sent a post request with start-time but no end time", ()=>{
+  test("201 status code: responds with the posted booking and adds an end time if sent a post request with start-time but no end time", () => {
     return request(app)
       .post("/api/bookings")
       .send({
         name: "Pam",
         start_time: "2024-01-23 14:30:00",
-        number_of_guests: 2,
+        number_of_guests: 8,
       })
       .expect(201)
       .then(({ body }) => {
@@ -124,7 +223,7 @@ describe("POST /api/bookings", () => {
           number_of_guests: 8,
           start_time: "2024-01-23 14:30:00",
           end_time: "2024-01-23 16:30:00",
-          status: "submitted",
+          status: "rejected",
         });
       });
   });
@@ -195,17 +294,7 @@ describe("PATCH /api/bookings/:booking_id", () => {
         });
       });
   });
-  // test("200 status: updates the date", () => {
-  //   return request(app)
-  //     .patch("/api/bookings/2")
-  //     .send({ date: "2024-02-02" })
-  //     .expect(200)
-  //     .then(({ body }) => {
-  //       expect(body.updatedBooking).toMatchObject({
-  //         date: "2024-02-02T00:00:00.000Z",
-  //       });
-  //     });
-  // });
+
   test("200 status: updates the start_time", () => {
     return request(app)
       .patch("/api/bookings/2")
@@ -219,56 +308,57 @@ describe("PATCH /api/bookings/:booking_id", () => {
   });
 });
 
-// describe("GET /api/bookings/date/:date", () => {
-//   test("200 status code: returns array of all bookings on a given table at a given date", () => {
-//     return request(app)
-//       .get("/api/bookings/date/2024-01-23")
-//       .expect(200)
-//       .then(({ body }) => {
-//         expect(body.bookings.length).toBe(6);
-//         body.bookings.forEach((booking) => {
-//           expect(booking).toMatchObject({
-//             date: "2024-01-23T00:00:00.000Z",
-//           });
-//         });
-//       });
-//   });
-//   test("404 status code: message of 'No bookings found for this table on the specified date'", () => {
-//     return request(app)
-//       .get("/api/bookings/date/2023-01-23")
-//       .expect(404)
-//       .then(({ body }) => {
-//         expect(body.msg).toBe("No bookings found for this date");
-//       });
-//   });
-// });
+describe("GET /api/bookings/date/:date", () => {
+  test("200 status code: returns array of all bookings on a given table at a given date", () => {
+    return request(app)
+      .get("/api/bookings/date/2024-01-23")
+      .expect(200)
+      .then(({ body }) => {
+        console.log(body.bookings, 'body.bookings')
+        expect(body.bookings.length).toBe(6);
+        body.bookings.forEach((booking) => {
+          expect(booking.start_time).toSatisfy((startTime) =>
+            startTime.startsWith("2024-01-23")
+          );
+        });
+      });
+  });
+  test("200 status code: responds with empty array when no bookings for a given date'", () => {
+    return request(app)
+      .get("/api/bookings/date/2023-01-23")
+      .expect(200)
+      .then(({ body }) => {
+         expect(body.bookings.length).toBe(0);
+      });
+  });
+});
 
-// describe("GET /api/bookings/date/:date/table_id", () => {
-//   test("200 status code: returns array of all bookings on a given table at a given date", () => {
-//     return request(app)
-//       .get("/api/bookings/date/2024-01-23/1")
-//       .expect(200)
-//       .then(({ body }) => {
-//         expect(body.bookings.length).toBe(1);
-//         body.bookings.forEach((booking) => {
-//           expect(booking).toMatchObject({
-//             table_id: 1,
-//             date: "2024-01-23T00:00:00.000Z",
-//           });
-//         });
-//       });
-//   });
-//   test("404 status code: message of 'No bookings found for this table on the specified date'", () => {
-//     return request(app)
-//       .get("/api/bookings/date/2023-01-23/1")
-//       .expect(404)
-//       .then(({ body }) => {
-//         expect(body.msg).toBe(
-//           "No bookings found for this table on the specified date"
-//         );
-//       });
-//   });
-// });
+describe("GET /api/bookings/date/:date/table_id", () => {
+  test("200 status code: returns array of all bookings on a given table at a given date", () => {
+    return request(app)
+      .get("/api/bookings/date/2024-01-23/1")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.bookings.length).toBe(1);
+        body.bookings.forEach((booking) => {
+          expect(booking).toMatchObject({
+            table_id: 1,
+          });
+          expect(booking.start_time).toSatisfy((startTime) =>
+            startTime.startsWith("2024-01-23")
+          );
+        });
+      });
+  });
+  test("200 status code: responds with empty array with no bookings  for a table on a given date'", () => {
+    return request(app)
+      .get("/api/bookings/date/2023-01-23/1")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.bookings.length).toBe(0);
+      });
+  });
+});
 
 describe("GET /api/tables/:capacity", () => {
   test("200 status code: returns array of all tables at or above a given capacity", () => {
@@ -286,12 +376,12 @@ describe("GET /api/tables/:capacity", () => {
         });
       });
   });
-  test("404 status code: message of 'No tables with sufficient capacity'", () => {
+  test("200 status code: returns empty array if no tables with capacity'", () => {
     return request(app)
       .get("/api/tables/20")
-      .expect(404)
+      .expect(200)
       .then(({ body }) => {
-        expect(body.msg).toBe("No tables with sufficient capacity");
+        expect(body.tables.length).toBe(0)
       });
   });
 });
@@ -322,46 +412,42 @@ describe("GET /api/bookings/:booking_id", () => {
   });
 });
 
-// describe("GET /api/bookings/date/:date/timeslot/:start_time/:end_time", () => {
-//   test("200 status code: returns bookings within a specific timeslot", () => {
-//     return request(app)
-//       .get("/api/bookings/date/2024-01-23/timeslot/12:30:00/14:30:00")
-//       .expect(200)
-//       .then(({ body }) => {
-//         expect(body.bookings.length).toBe(4);
-//         body.bookings.forEach((booking) => {
-//           expect(booking).toMatchObject({
-//             booking_id: expect.any(Number),
-//             name: expect.any(String),
-//             number_of_guests: expect.any(Number),
-//             date: expect.any(String), // Validate date format later if necessary
-//             start_time: expect.stringMatching(
-//               /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/
-//             ),
-//             end_time: expect.stringMatching(
-//               /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/
-//             ),
-//             status: expect.any(String),
-//           });
-//         });
-//       });
-//   });
+describe("GET /api/bookings/date/:date/timeslot/:start_time/:end_time", () => {
+  test("200 status code: returns bookings within a specific timeslot", () => {
+    return request(app)
+      .get("/api/bookings/timeslot/2024-01-23 12:30:00/2024-01-23 14:30:00")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.bookings.length).toBe(4);
+        body.bookings.forEach((booking) => {
+          expect(booking).toMatchObject({
+            booking_id: expect.any(Number),
+            name: expect.any(String),
+            number_of_guests: expect.any(Number),
+            start_time: expect.any(String),
+            end_time: expect.any(String),
+            status: expect.any(String),
+          });
+        });
+      });
+  });
 
-//   test("404 status code: No bookings in that timeslot!", () => {
-//     return request(app)
-//       .get("/api/bookings/date/2023-01-23/timeslot/12:30:00/14:30:00")
-//       .expect(404)
-//       .then(({ body }) => {
-//         expect(body.msg).toBe("No bookings in that timeslot!");
-//       });
-//   });
-
-//   test("404 status code: No bookings in that timeslot!", () => {
-//     return request(app)
-//       .get("/api/bookings/date/2024-01-23/timeslot/18:30:00/19:30:00")
-//       .expect(404)
-//       .then(({ body }) => {
-//         expect(body.msg).toBe("No bookings in that timeslot!");
-//       });
-//   });
-// });
+  test("200 status code: returns empty array when no bookings in timeslot", () => {
+    return request(app)
+      .get(
+        "/api/bookings/timeslot/2025-01-23 12:30:00/2025-01-23 14:30:00"
+      )
+      .expect(200)
+      .then(({ body }) => {
+            expect(body.bookings.length).toBe(0);
+      });
+  });
+    test("400 status code: End time must be after start time! if passed end time earlier than start time", () => {
+      return request(app)
+        .get("/api/bookings/timeslot/2026-01-23 12:30:00/2025-01-23 14:30:00")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("End time must be after start time!");
+        });
+    });
+});

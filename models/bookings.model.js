@@ -1,6 +1,4 @@
 const db = require("../db/connection");
-// const fs = require("fs/promises");
-// const { DatabaseError } = require("pg");
 const format = require("pg-format");
 
 exports.fetchBookings = () => {
@@ -46,11 +44,11 @@ exports.removeBooking = (booking_id) => {
 };
 
 exports.addBooking = (booking) => {
+  console.log('entering addBooking')
   const valuesArr = [
     [
       booking.name,
       booking.number_of_guests,
-      // booking.date,
       booking.start_time,
       booking.end_time,
       booking.status,
@@ -126,38 +124,27 @@ exports.updateBookingDetails = (booking_id, updates) => {
 };
 
 exports.fetchBookingsByDate = (date) => {
+
   return db
     .query(
-      `SELECT booking_id, name, number_of_guests, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS') AS start_time,TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS') AS end_time, status, notes, table_id FROM bookings WHERE date = $1`,
+      `SELECT booking_id, name, number_of_guests, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS') AS start_time,TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS') AS end_time, status, notes, table_id FROM bookings WHERE DATE(start_time) = $1`,
       [date]
     )
     .then(({ rows }) => {
-      if (rows.length === 0) {
-        return Promise.reject({
-          status: 404,
-          msg: "No bookings found for this date",
-        });
-      } else {
+     
         return rows;
-      }
+      
     });
 };
 
 exports.fetchBookingsByDateAndTable = (date, table_id) => {
   return db
     .query(
-      `SELECT booking_id, name, number_of_guests, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS') AS start_time,TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS') AS end_time, status, notes, table_id FROM bookings WHERE date = $1 AND table_id = $2`,
+      `SELECT booking_id, name, number_of_guests, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS') AS start_time,TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS') AS end_time, status, notes, table_id FROM bookings WHERE DATE(start_time) = $1 AND table_id = $2`,
       [date, table_id]
     )
     .then(({ rows }) => {
-      if (rows.length === 0) {
-        return Promise.reject({
-          status: 404,
-          msg: "No bookings found for this table on the specified date",
-        });
-      } else {
         return rows;
-      }
     });
 };
 
@@ -181,7 +168,13 @@ exports.fetchBookingById = (booking_id) => {
 
 exports.fetchBookingsByTimeSlot = (start_time, end_time) =>{
 
-  //add check that end_time is after start_time
+  if (end_time<= start_time){
+      return Promise.reject({
+        status: 400,
+        msg: "End time must be after start time!",
+      });
+  }
+  else{
   return db
     .query(
       `SELECT 
@@ -191,21 +184,15 @@ exports.fetchBookingsByTimeSlot = (start_time, end_time) =>{
   TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS') AS start_time,
   TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS') AS end_time,
   status,
-  notes
+  notes, table_id
     FROM bookings WHERE 
-        start_time = $2 
-        OR (start_time < $3 AND start_time > $2)
-        OR (end_time > $2 AND end_time < $3)`,
+        start_time = $1 
+        OR (start_time < $2 AND start_time > $1)
+        OR (end_time > $1 AND end_time < $2)`,
       [start_time, end_time]
     )
     .then(({ rows }) => {
-      if (rows.length === 0) {
-        return Promise.reject({
-          status: 404,
-          msg: "No bookings in that timeslot!",
-        });
-      } else {
         return rows;
-      }
     });
+  }
 }
