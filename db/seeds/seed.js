@@ -20,9 +20,8 @@ const seed = ({ bookingsData, tablesData }) => {
         booking_id SERIAL PRIMARY KEY,
         name VARCHAR NOT NULL,
         number_of_guests INT NOT NULL,
-        date DATE NOT NULL,
-        start_time TIME NOT NULL,
-        end_time TIME NOT NULL,
+        start_time TIMESTAMP NOT NULL,
+        end_time TIMESTAMP NOT NULL,
         status VARCHAR DEFAULT 'submitted',
         notes VARCHAR,
         table_id INT REFERENCES tables(table_id) ON DELETE SET NULL DEFAULT NULL
@@ -32,11 +31,11 @@ const seed = ({ bookingsData, tablesData }) => {
       tablesData.map(({ capacity, notes }) => [capacity, notes])
     );
     return db.query(insertTablesQueryStr);}).then(()=>{    const insertBookingsQueryStr = format(
-        "INSERT INTO bookings (name, number_of_guests, date, start_time, end_time, status, notes, table_id) VALUES %L;",
-        bookingsData.map(({ name, number_of_guests, date, start_time, end_time, status, notes, table_id }) => [
+        "INSERT INTO bookings (name, number_of_guests, start_time, end_time, status, notes, table_id) VALUES %L;",
+        bookingsData.map(({ name, number_of_guests, start_time, end_time, status, notes, table_id }) => [
           name,
           number_of_guests,
-          date,
+          // date,
           start_time,
           end_time,
           status,

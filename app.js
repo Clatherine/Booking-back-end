@@ -1,7 +1,19 @@
 const express = require("express");
 const cors = require("cors");
-const {getTables} = require("./controllers/tables.controller")
-const {getBookings, deleteBooking, postBooking,  patchBookingDetails, getBookingsByTableAndDate, getBookingsByDate, getTablesByCapacity} = require("./controllers/bookings.controller")
+const {
+  getTables,
+  getTablesByCapacity,
+} = require("./controllers/tables.controller");
+const {
+  getBookings,
+  deleteBooking,
+  postBooking,
+  patchBookingDetails,
+  getBookingsByDateAndTable,
+  getBookingsByDate,
+  getBookingById,
+  getBookingsByTimeSlot
+} = require("./controllers/bookings.controller");
 
 const app = express();
 
@@ -12,9 +24,11 @@ app.get("/api/tables/:capacity", getTablesByCapacity);
 
 app.get('/api/tables', getTables)
 
-app.get("/api/bookings/date/:date/:table_id", getBookingsByTableAndDate);
+app.get('/api/bookings/date/:date/timeslot/:start_time/:end_time', getBookingsByTimeSlot)
 
-app.get("/api/bookings/date/:date", getBookingsByDate);
+// app.get("/api/bookings/date/:date/:table_id", getBookingsByDateAndTable); -> need to update
+
+// app.get("/api/bookings/date/:date", getBookingsByDate); --> need to update
 
 app.delete("/api/bookings/:booking_id", deleteBooking)
 
@@ -22,9 +36,9 @@ app.get("/api/bookings", getBookings);
 
 app.post("/api/bookings", postBooking)
 
+app.get("/api/bookings/:booking_id", getBookingById)
+
 app.patch("/api/bookings/:booking_id", patchBookingDetails)
-
-
 
 
 

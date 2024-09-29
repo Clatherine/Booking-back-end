@@ -1,11 +1,13 @@
 const db = require("../db/connection");
-const fs = require("fs/promises");
-const { DatabaseError } = require("pg");
+// const fs = require("fs/promises");
+// const { DatabaseError } = require("pg");
 const format = require("pg-format");
 
 exports.fetchBookings = () => {
   return db
-    .query("SELECT booking_id, name, number_of_guests, date, start_time, end_time, status, notes, table_id FROM bookings")
+    .query(
+      "SELECT booking_id, name, number_of_guests, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS') AS start_time,TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS') AS end_time, status, notes, table_id FROM bookings"
+    )
     .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "No tables found!" });
@@ -16,7 +18,10 @@ exports.fetchBookings = () => {
 
 exports.fetchBookingById = (booking_id) => {
   return db
-    .query("SELECT * FROM bookings WHERE booking_id = $1", [booking_id])
+    .query(
+      "SELECT booking_id, name, number_of_guests, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS') AS start_time,TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS') AS end_time, status, notes, table_id FROM bookings WHERE booking_id = $1",
+      [booking_id]
+    )
     .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Booking not found" });
@@ -26,28 +31,41 @@ exports.fetchBookingById = (booking_id) => {
 };
 
 exports.removeBooking = (booking_id) => {
-     return db
-       .query("DELETE FROM bookings WHERE booking_id = $1 RETURNING *", [
-         booking_id,
-       ])
-       .then(({ rows }) => {
-         if (rows.length === 0) {
-           return Promise.reject({
-             status: 404,
-             msg: "That booking does not exist!",
-           });
-         }
-       });
-       
-}
-
-exports.addBooking = (booking) =>{
-const valuesArr = [[booking.name, booking.number_of_guests, booking.date, booking.start_time, booking.end_time, booking.status, booking.notes, booking.table_id || null]]
-const formattedQuery = format("INSERT INTO bookings(name, number_of_guests, date, start_time, end_time, status, notes, table_id) VALUES %L RETURNING *", valuesArr)
-    return db.query(formattedQuery).then(({ rows }) => {
-      return rows[0];
+  return db
+    .query("DELETE FROM bookings WHERE booking_id = $1 RETURNING *", [
+      booking_id,
+    ])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "That booking does not exist!",
+        });
+      }
     });
-}
+};
+
+exports.addBooking = (booking) => {
+  const valuesArr = [
+    [
+      booking.name,
+      booking.number_of_guests,
+      // booking.date,
+      booking.start_time,
+      booking.end_time,
+      booking.status,
+      booking.notes,
+      booking.table_id || null,
+    ],
+  ];
+  const formattedQuery = format(
+    "INSERT INTO bookings(name, number_of_guests, start_time, end_time, status, notes, table_id) VALUES %L RETURNING booking_id, name, number_of_guests, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS') AS start_time,TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS') AS end_time, status, notes, table_id",
+    valuesArr
+  );
+  return db.query(formattedQuery).then(({ rows }) => {
+    return rows[0];
+  });
+};
 
 exports.updateBookingStatus = (booking_id, newStatus, table_id) => {
   if (newStatus !== "submitted" && !table_id) {
@@ -61,7 +79,7 @@ exports.updateBookingStatus = (booking_id, newStatus, table_id) => {
     UPDATE bookings
     SET status = $1, table_id = $2
     WHERE booking_id = $3
-    RETURNING *;
+    RETURNING booking_id, name, number_of_guests, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS') AS start_time,TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS') AS end_time, status, notes, table_id;
   `;
 
   const values = [newStatus, table_id || null, booking_id]; // Only set table_id if provided
@@ -80,12 +98,14 @@ exports.updateBookingDetails = (booking_id, updates) => {
   if (keys.length === 0) {
     return Promise.reject({
       status: 400,
-      msg: 'No fields provided for update.'
+      msg: "No fields provided for update.",
     });
   }
 
-  const setClause = keys.map((key, index) => `${key} = $${index + 1}`).join(', ');
-  const values = keys.map(key => updates[key]);
+  const setClause = keys
+    .map((key, index) => `${key} = $${index + 1}`)
+    .join(", ");
+  const values = keys.map((key) => updates[key]);
 
   // Add booking_id to the end of the values array
   values.push(booking_id);
@@ -94,7 +114,7 @@ exports.updateBookingDetails = (booking_id, updates) => {
     UPDATE bookings
     SET ${setClause}
     WHERE booking_id = $${values.length}
-    RETURNING *;
+    RETURNING booking_id, name, number_of_guests, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS') AS start_time,TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS') AS end_time, status, notes, table_id;
   `;
 
   return db.query(query, values).then(({ rows }) => {
@@ -107,7 +127,10 @@ exports.updateBookingDetails = (booking_id, updates) => {
 
 exports.fetchBookingsByDate = (date) => {
   return db
-    .query(`SELECT * FROM bookings WHERE date = $1`, [date])
+    .query(
+      `SELECT booking_id, name, number_of_guests, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS') AS start_time,TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS') AS end_time, status, notes, table_id FROM bookings WHERE date = $1`,
+      [date]
+    )
     .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject({
@@ -120,12 +143,12 @@ exports.fetchBookingsByDate = (date) => {
     });
 };
 
-exports.fetchBookingsByTableAndDate = (date, table_id) => {
+exports.fetchBookingsByDateAndTable = (date, table_id) => {
   return db
-    .query(`SELECT * FROM bookings WHERE date = $1 AND table_id = $2`, [
-      date,
-      table_id,
-    ])
+    .query(
+      `SELECT booking_id, name, number_of_guests, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS') AS start_time,TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS') AS end_time, status, notes, table_id FROM bookings WHERE date = $1 AND table_id = $2`,
+      [date, table_id]
+    )
     .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject({
@@ -138,15 +161,48 @@ exports.fetchBookingsByTableAndDate = (date, table_id) => {
     });
 };
 
-
-exports.fetchTablesByCapacity = (capacity) =>{
+exports.fetchBookingById = (booking_id) => {
   return db
-    .query(`SELECT * FROM tables WHERE capacity >= $1`, [capacity])
+    .query(
+      `SELECT booking_id, name, number_of_guests, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS') AS start_time,TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS') AS end_time, status, notes, table_id FROM bookings WHERE booking_id = $1`,
+      [booking_id]
+    )
     .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject({
           status: 404,
-          msg: "No tables with sufficient capacity",
+          msg: "No booking of that id!",
+        });
+      } else {
+        return rows[0];
+      }
+    });
+};
+
+exports.fetchBookingsByTimeSlot = (start_time, end_time) =>{
+
+  //add check that end_time is after start_time
+  return db
+    .query(
+      `SELECT 
+      booking_id,
+  name,
+  number_of_guests,
+  TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS') AS start_time,
+  TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS') AS end_time,
+  status,
+  notes
+    FROM bookings WHERE 
+        start_time = $2 
+        OR (start_time < $3 AND start_time > $2)
+        OR (end_time > $2 AND end_time < $3)`,
+      [start_time, end_time]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "No bookings in that timeslot!",
         });
       } else {
         return rows;

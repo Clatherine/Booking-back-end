@@ -1,4 +1,4 @@
-const { fetchTables } = require("../models/tables.model");
+const { fetchTables, fetchTablesByCapacity } = require("../models/tables.model");
 
 exports.getTables = (req, res, next) => {
   fetchTables()
@@ -8,4 +8,13 @@ exports.getTables = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.getTablesByCapacity = (req, res, next) => {
+  const { capacity } = req.params;
+  fetchTablesByCapacity(capacity)
+    .then((tables) => {
+      res.status(200).send({ tables });
+    })
+    .catch(next);
 };
