@@ -120,7 +120,7 @@
     }
   },
   "GET /api/tables/:capacity": {
-    "descritpion": "returns array of all tables at or above a given capacity",
+    "description": "returns array of all tables at or above a given capacity",
     "queries": [],
     "exampleResponse": {
       "tables": [

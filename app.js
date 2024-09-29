@@ -14,11 +14,14 @@ const {
   getBookingById,
   getBookingsByTimeSlot
 } = require("./controllers/bookings.controller");
+const { getEndpoints } = require("./controllers/endpoints.controller");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.get('/api', getEndpoints)
 
 app.get("/api/tables/:capacity", getTablesByCapacity);
 
