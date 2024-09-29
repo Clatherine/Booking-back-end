@@ -5,7 +5,8 @@
   "main": "listen.js",
   "scripts": {
     "test": "jest",
-    "start": "node app.js"
+    "start": "node listen.js",
+    "seed-prod": "NODE_ENV=production npm run seed"
   },
   "repository": {
     "type": "git",
