@@ -314,7 +314,6 @@ describe("GET /api/bookings/date/:date", () => {
       .get("/api/bookings/date/2024-01-23")
       .expect(200)
       .then(({ body }) => {
-        console.log(body.bookings, 'body.bookings')
         expect(body.bookings.length).toBe(6);
         body.bookings.forEach((booking) => {
           expect(booking.start_time).toSatisfy((startTime) =>

@@ -1,9 +1,12 @@
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config(); 
+// const knex = require("knex")(require("./knexfile").development);
 const {
   getTables,
   getTablesByCapacity,
 } = require("./controllers/tables.controller");
+
 const {
   getBookings,
   deleteBooking,
@@ -16,12 +19,27 @@ const {
 } = require("./controllers/bookings.controller");
 const { getEndpoints } = require("./controllers/endpoints.controller");
 
+const pool = require("./db/connection");
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-
+app.use((req, res, next) => {
+  console.log(`Received request: ${req.method} ${req.originalUrl}`);
+  next();
+});
 app.get('/api', getEndpoints)
+
+app.get("/api/test-db", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW()"); // Test query
+    res.status(200).send(result.rows);
+  } catch (error) {
+    console.error("Database connection error:", error);
+    res.status(500).send({ msg: "Database connection error", error });
+  }
+});
 
 app.get("/api/tables/:capacity", getTablesByCapacity);
 
@@ -35,7 +53,10 @@ app.get("/api/bookings/date/:date", getBookingsByDate);
 
 app.delete("/api/bookings/:booking_id", deleteBooking)
 
-app.get("/api/bookings", getBookings);
+app.get("/api/bookings", (req, res) => {
+  console.log("Bookings route hit");
+  getBookings(req, res);
+});
 
 app.post("/api/bookings", postBooking)
 
@@ -72,6 +93,10 @@ app.use((err, req, res, next) => {
 // General error handler for uncaught errors
 app.use((err, req, res, next) => {
   res.status(500).send({ msg: "Internal Server Error" });
+});
+
+app.listen(3000, () => {
+  console.log("Server is running on port 3000");
 });
 
 module.exports = app;
