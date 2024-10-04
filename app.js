@@ -26,7 +26,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use((req, res, next) => {
-  console.log(`Received request: ${req.method} ${req.originalUrl}`);
+  // console.log(`Received request: ${req.method} ${req.originalUrl}`);
   next();
 });
 app.get('/api', getEndpoints)
@@ -54,7 +54,6 @@ app.get("/api/bookings/date/:date", getBookingsByDate);
 app.delete("/api/bookings/:booking_id", deleteBooking)
 
 app.get("/api/bookings", (req, res) => {
-  console.log("Bookings route hit");
   getBookings(req, res);
 });
 

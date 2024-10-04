@@ -5,16 +5,16 @@ const seed = require("../db/seeds/seed.js");
 const testData = require("../db/data/test-data/index.js");
 
 beforeEach(() => {
-  return seed(testData).then(() => {
-    return db.query("BEGIN;"); // Start transaction
+  return seed(db, testData).then(() => {
+    return db.raw("BEGIN;"); // Start transaction
   });
 });
 
 afterEach(() => {
-  return db.query("ROLLBACK;"); // Rollback transaction
+  return db.raw("ROLLBACK;"); // Rollback transaction
 });
 
-afterAll(() => db.end());
+afterAll(() => db.destroy());
 
 describe("Invalid paths", () => {
   test("status 404: returns 'Route not found' when path contains invalid path", () => {
@@ -33,19 +33,20 @@ describe("GET /api/tables", () => {
       .get("/api/tables")
       .expect(200)
       .then(({ body }) => {
-        expect(body.tables.length).toBe(4);
+        expect(body.tables.length).toBe(10);
         body.tables.forEach((table) => {
           expect(table).toMatchObject({
             table_id: expect.any(Number),
             capacity: expect.any(Number),
             notes: expect.toSatisfy(
               (val) => typeof val === "string" || val === null
-            ),
+            )
           });
         });
       });
   });
 });
+
 
 describe("GET /api/bookings", () => {
   test("200 status code: returns array of all bookings", () => {
@@ -53,7 +54,7 @@ describe("GET /api/bookings", () => {
       .get("/api/bookings")
       .expect(200)
       .then(({ body }) => {
-        expect(body.bookings.length).toBe(6);
+        expect(body.bookings.length).toBe(9);
         body.bookings.forEach((booking) => {
           expect(booking).toMatchObject({
             booking_id: expect.any(Number),
@@ -67,12 +68,13 @@ describe("GET /api/bookings", () => {
             ),
             notes: expect.toSatisfy(
               (val) => typeof val === "string" || val === null
-            ),
+            )
           });
         });
       });
   });
 });
+
 
 describe("POST /api/bookings", () => {
     test("201 status code: responds with the posted booking, no changes (has table_id, status already confirmed)", () => {
@@ -105,7 +107,7 @@ describe("POST /api/bookings", () => {
       .post("/api/bookings")
       .send({
         name: "Pam",
-        number_of_guests: 8,
+        number_of_guests: 11,
         start_time: "2024-01-23 11:30:00",
         end_time: "2024-01-23 13:30:00",
         status: "submitted",
@@ -115,7 +117,7 @@ describe("POST /api/bookings", () => {
       .then(({ body }) => {
         expect(body.addedBooking).toMatchObject({
           name: "Pam",
-          number_of_guests: 8,
+          number_of_guests: 11,
           start_time: "2024-01-23 11:30:00",
           end_time: "2024-01-23 13:30:00",
           status: "rejected",
@@ -143,7 +145,7 @@ describe("POST /api/bookings", () => {
             end_time: "2024-01-23 13:30:00",
             status: "confirmed",
             notes: "dairy allergy",
-            table_id: 4
+            table_id: 5
           });
         });
     });
@@ -189,7 +191,7 @@ describe("POST /api/bookings", () => {
              start_time: "2024-01-24 11:30:00",
              end_time: "2024-01-24 13:30:00",
              status: "confirmed",
-             table_id: 3,
+             table_id: 6,
              notes: "dairy allergy",
            });
          });
@@ -223,7 +225,8 @@ describe("POST /api/bookings", () => {
           number_of_guests: 8,
           start_time: "2024-01-23 14:30:00",
           end_time: "2024-01-23 16:30:00",
-          status: "rejected",
+          status: "confirmed",
+          table_id: 7
         });
       });
   });
@@ -309,12 +312,12 @@ describe("PATCH /api/bookings/:booking_id", () => {
 });
 
 describe("GET /api/bookings/date/:date", () => {
-  test("200 status code: returns array of all bookings on a given table at a given date", () => {
+  test("200 status code: returns array of all bookings at a given date", () => {
     return request(app)
       .get("/api/bookings/date/2024-01-23")
       .expect(200)
       .then(({ body }) => {
-        expect(body.bookings.length).toBe(6);
+        expect(body.bookings.length).toBe(7);
         body.bookings.forEach((booking) => {
           expect(booking.start_time).toSatisfy((startTime) =>
             startTime.startsWith("2024-01-23")
@@ -365,7 +368,7 @@ describe("GET /api/tables/:capacity", () => {
       .get("/api/tables/5")
       .expect(200)
       .then(({ body }) => {
-        expect(body.tables.length).toBe(3);
+        expect(body.tables.length).toBe(5);
         body.tables.forEach((table) => {
           expect(table).toMatchObject({
             capacity: expect.any(Number),
@@ -401,12 +404,12 @@ describe("GET /api/bookings/:booking_id", () => {
         });
       });
   });
-  test("404 status code: message of 'No booking of that id!", () => {
+  test("404 status code: message of 'Booking not found", () => {
     return request(app)
       .get("/api/bookings/20")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("No booking of that id!");
+        expect(body.msg).toBe("Booking not found");
       });
   });
 });
@@ -417,7 +420,7 @@ describe("GET /api/bookings/timeslot/:start_time/:end_time", () => {
       .get("/api/bookings/timeslot/2024-01-23 12:30:00/2024-01-23 14:30:00")
       .expect(200)
       .then(({ body }) => {
-        expect(body.bookings.length).toBe(4);
+        expect(body.bookings.length).toBe(5);
         body.bookings.forEach((booking) => {
           expect(booking).toMatchObject({
             booking_id: expect.any(Number),
@@ -434,7 +437,7 @@ describe("GET /api/bookings/timeslot/:start_time/:end_time", () => {
   test("200 status code: returns empty array when no bookings in timeslot", () => {
     return request(app)
       .get(
-        "/api/bookings/timeslot/2025-01-23 12:30:00/2025-01-23 14:30:00"
+        "/api/bookings/timeslot/2026-01-23 12:30:00/2026-01-23 14:30:00"
       )
       .expect(200)
       .then(({ body }) => {
@@ -473,3 +476,6 @@ describe("GET /api", () => {
       });
   });
 });
+
+// get opening times 
+// check if booking can be accepted by booking time

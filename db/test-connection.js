@@ -1,21 +1,7 @@
-// const { Pool } = require("pg");
+
 const dotenv = require("dotenv");
 
 dotenv.config(); // Load environment variables
-
-// const pool = new Pool({
-//   connectionString: process.env.DATABASE_URL, // Use your DATABASE_URL
-// });
-
-// pool
-//   .connect()
-//   .then(() => {
-//     console.log("Connected to the database successfully!");
-//     return pool.end();
-//   })
-//   .catch((err) => {
-//     console.error("Connection error:", err);
-//   });
 
 const knex = require("knex")(require("../knexfile").production); // Set up Knex
 

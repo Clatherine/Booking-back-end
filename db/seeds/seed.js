@@ -2,21 +2,31 @@ const format = require("pg-format");
 const devData = require("../data/development-data/index.js"); 
 
 // This is the Knex seed function structure
-exports.seed = function (knex) {
-  console.log('entering seed')
+const seed = function (knex, data) {
+   const { tablesData, bookingsData, timesData} = data; 
   // Clear existing data and create tables
   return knex
     .raw(`DROP TABLE IF EXISTS bookings;`)
     .then(() => {
-      console.log('booking table has been dropped')
       return knex.raw(`DROP TABLE IF EXISTS tables;`);
     })
-    .then(() => {
+    .then(()=>{
+      return knex.raw('DROP TABLE IF EXISTS times')
+    })
+    .then(()=>{
+        return knex.schema.createTable("times", (table)=>{
+          
+          table.time("opening_time").notNullable()
+           table.time("closing_time").notNullable();
+        })
+    }).then(()=>{
       return knex.schema.createTable("tables", (table) => {
         table.increments("table_id").primary();
         table.integer("capacity").notNullable();
-        table.string("notes");
-      });
+        table.string("notes")
+     
+      })
+
     })
     .then(() => {
       return knex.schema.createTable("bookings", (table) => {
@@ -32,10 +42,10 @@ exports.seed = function (knex) {
           .references("table_id")
           .inTable("tables")
           .onDelete("SET NULL");
-      });
-    })
+       
+      })
+      })
     .then(() => {
-      const { tablesData } = devData; // Extract data from your data source
 
       const insertTablesQueryStr = format(
         "INSERT INTO tables (capacity, notes) VALUES %L;",
@@ -44,7 +54,6 @@ exports.seed = function (knex) {
       return knex.raw(insertTablesQueryStr);
     })
     .then(() => {
-      const { bookingsData } = devData; // Use the same data source
       const insertBookingsQueryStr = format(
         "INSERT INTO bookings (name, number_of_guests, start_time, end_time, status, notes, table_id) VALUES %L;",
         bookingsData.map(
@@ -69,7 +78,20 @@ exports.seed = function (knex) {
       );
       return knex.raw(insertBookingsQueryStr);
     })
+    .then(()=>{
+      const insertTimesQueryStr = format(
+        "INSERT INTO times ( opening_time, closing_time) VALUES %L;", 
+        timesData.map(
+          ({ opening_time, closing_time})=>[
+            opening_time,closing_time
+          ]
+        )
+      );
+      return knex.raw(insertTimesQueryStr)
+    })
     .catch((error) => {
       console.error("Error seeding data:", error);
     });
 };
+
+module.exports = seed

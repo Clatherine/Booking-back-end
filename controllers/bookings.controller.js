@@ -11,6 +11,7 @@ const {
 const db = require("../db/connection");
 const {
   fetchTablesByCapacity,
+  fetchTableById,
 } = require("../models/tables.model");
 
 exports.getBookings = (req, res, next) => {
@@ -140,15 +141,8 @@ exports.patchBookingDetails = (req, res, next) => {
     .then((booking) => {
       // Check if the provided table_id is valid if being set
       if (table_id) {
-        return db
-          .query("SELECT * FROM tables WHERE table_id = $1", [table_id])
-          .then(({ rows }) => {
-            if (rows.length === 0) {
-              return Promise.reject({
-                status: 400,
-                msg: "Invalid table_id: does not exist.",
-              });
-            }
+        return fetchTableById(table_id)
+          .then(()=>{
             return booking; // Return the original booking if the table_id is valid
           });
       }
@@ -166,7 +160,6 @@ exports.patchBookingDetails = (req, res, next) => {
           msg: 'A table_id must be provided when the status is not "submitted".',
         });
       }
-
       // Construct the updates object
       const updates = {};
       if (status) updates.status = status;
@@ -212,7 +205,6 @@ exports.getBookingById = (req, res, next) => {
 };
 
 exports.getBookingsByTimeSlot = (req, res, next) => {
-  console.log("entering");
   const { start_time, end_time } = req.params;
   fetchBookingsByTimeSlot(start_time, end_time)
     .then((bookings) => {

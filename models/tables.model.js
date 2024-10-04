@@ -1,18 +1,33 @@
 const db = require("../db/connection");
 
 exports.fetchTables = () => {
-  return db.query("SELECT table_id, capacity, notes FROM tables").then(({ rows }) => {
-    if (rows.length === 0) {
-      return Promise.reject({ status: 404, msg: "No tables found!" });
-    }
-    return rows;
-  });
+  return db("tables")
+    .select("*")
+    .then((rows) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "No tables found!" });
+      }
+      return rows;
+    });
 };
 
 exports.fetchTablesByCapacity = (capacity) => {
-  return db
-    .query(`SELECT * FROM tables WHERE capacity >= $1`, [capacity])
-    .then(({ rows }) => {
-        return rows;
-    });
+ return db("tables")
+   .select("*")
+   .where("capacity", ">=", capacity)
+   .then((rows) => {
+     return rows;
+   });
 };
+
+exports.fetchTableById = (table_id) => {
+  return db("tables")
+  .select("*")
+  .where("table_id", "=", table_id)
+  .then((rows)=>{
+    if(rows.length ===0){
+        return Promise.reject({ status: 404, msg: "No table of that id!" });
+    }
+    return rows
+  })
+}
