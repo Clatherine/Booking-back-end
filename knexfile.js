@@ -18,7 +18,7 @@ module.exports = {
       password: "",
       database: "booking",
     },
-    pool: { min: 2, max: 10 },
+    pool: { min: 0, max: 10 },
     seeds: {
       directory: "./db/seeds",
     },

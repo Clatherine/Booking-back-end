@@ -1,35 +1,30 @@
 const format = require("pg-format");
-const devData = require("../data/development-data/index.js"); 
+const devData = require("../data/development-data/index.js");
 
-// This is the Knex seed function structure
 const seed = function (knex, data) {
-   const { tablesData, bookingsData, timesData} = data; 
+  const { tablesData, bookingsData, timesData } = data;
+
   // Clear existing data and create tables
-  return knex
-    .raw(`DROP TABLE IF EXISTS bookings;`)
+  return knex.transaction((trx)=>{
+return trx.schema
+    .dropTableIfExists("bookings")
+    .then(() => trx.schema.dropTableIfExists("tables"))
+    .then(() => trx.schema.dropTableIfExists("times"))
     .then(() => {
-      return knex.raw(`DROP TABLE IF EXISTS tables;`);
+      return trx.schema.createTable("times", (table) => {
+        table.time("opening_time").notNullable();
+        table.time("closing_time").notNullable();
+      });
     })
-    .then(()=>{
-      return knex.raw('DROP TABLE IF EXISTS times')
-    })
-    .then(()=>{
-        return knex.schema.createTable("times", (table)=>{
-          
-          table.time("opening_time").notNullable()
-           table.time("closing_time").notNullable();
-        })
-    }).then(()=>{
-      return knex.schema.createTable("tables", (table) => {
+    .then(() => {
+      return trx.schema.createTable("tables", (table) => {
         table.increments("table_id").primary();
         table.integer("capacity").notNullable();
-        table.string("notes")
-     
-      })
-
+        table.string("notes");
+      });
     })
     .then(() => {
-      return knex.schema.createTable("bookings", (table) => {
+      return trx.schema.createTable("bookings", (table) => {
         table.increments("booking_id").primary();
         table.string("name").notNullable();
         table.integer("number_of_guests").notNullable();
@@ -42,16 +37,14 @@ const seed = function (knex, data) {
           .references("table_id")
           .inTable("tables")
           .onDelete("SET NULL");
-       
-      })
-      })
+      });
+    })
     .then(() => {
-
       const insertTablesQueryStr = format(
         "INSERT INTO tables (capacity, notes) VALUES %L;",
         tablesData.map(({ capacity, notes }) => [capacity, notes])
       );
-      return knex.raw(insertTablesQueryStr);
+      return trx.raw(insertTablesQueryStr);
     })
     .then(() => {
       const insertBookingsQueryStr = format(
@@ -76,22 +69,22 @@ const seed = function (knex, data) {
           ]
         )
       );
-      return knex.raw(insertBookingsQueryStr);
+      return trx.raw(insertBookingsQueryStr);
     })
-    .then(()=>{
+    .then(() => {
       const insertTimesQueryStr = format(
-        "INSERT INTO times ( opening_time, closing_time) VALUES %L;", 
-        timesData.map(
-          ({ opening_time, closing_time})=>[
-            opening_time,closing_time
-          ]
-        )
+        "INSERT INTO times (opening_time, closing_time) VALUES %L;",
+        timesData.map(({ opening_time, closing_time }) => [
+          opening_time,
+          closing_time,
+        ])
       );
-      return knex.raw(insertTimesQueryStr)
+      return trx.raw(insertTimesQueryStr);
     })
     .catch((error) => {
       console.error("Error seeding data:", error);
     });
+  })
 };
 
-module.exports = seed
+module.exports = seed;

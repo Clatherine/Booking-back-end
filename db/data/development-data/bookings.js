@@ -5,7 +5,6 @@ module.exports = [
     start_time: "2024-01-23 15:30:00",
     end_time: "2024-01-23 17:30:00",
     status: "submitted",
-    restaurant_id: 1,
   },
   {
     name: "Liz",
@@ -14,7 +13,6 @@ module.exports = [
     end_time: "2024-01-23 17:30:00",
     status: "submitted",
     notes: "gluten free guest",
-    restaurant_id: 1,
   },
   {
     name: "Pam",
@@ -24,7 +22,6 @@ module.exports = [
     status: "confirmed",
     notes: "nut allergy",
     table_id: 1,
-    restaurant_id: 1,
   },
   {
     name: "Christy",
@@ -34,7 +31,6 @@ module.exports = [
     status: "confirmed",
     notes: "wheelchair user",
     table_id: 2,
-    restaurant_id: 1,
   },
   {
     name: "Dan",
@@ -43,7 +39,6 @@ module.exports = [
     status: "confirmed",
     end_time: "2024-01-23 14:00:00",
     table_id: 3,
-    restaurant_id: 1,
   },
   {
     name: "Stu",
@@ -51,6 +46,31 @@ module.exports = [
     start_time: "2024-01-23 13:00:00",
     status: "submitted",
     end_time: "2024-01-23 15:30:00",
-    restaurant_id: 1,
+  },
+  {
+    name: "Chris",
+    number_of_guests: 7,
+    start_time: "2024-01-23 12:00:00",
+    status: "confirmed",
+    end_time: "2024-01-23 14:00:00",
+    table_id: 7,
+  },
+
+  // new date
+  {
+    name: "Chris",
+    number_of_guests: 7,
+    start_time: "2025-01-23 12:00:00",
+    status: "confirmed",
+    end_time: "2025-01-23 14:00:00",
+    table_id: 7,
+  },
+  {
+    name: "Betty",
+    number_of_guests: 2,
+    start_time: "2025-01-23 12:00:00",
+    status: "confirmed",
+    end_time: "2025-01-23 14:00:00",
+    table_id: 1,
   },
 ];

@@ -104,7 +104,7 @@ exports.postBooking = (req, res, next) => {
             }
           );
         }
-      });
+      }).catch(next)
     } else {
       addBooking(body).then((addedBooking) => {
         res.status(201).send({ addedBooking });
