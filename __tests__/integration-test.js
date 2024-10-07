@@ -56,6 +56,21 @@ describe("GET /api/tables", () => {
   });
 });
 
+// describe("GET /api/times", () => {
+//   test("200 status code: returns object of times", () => {
+//     return request(server)
+//       .get("/api/times")
+//       .expect(200)
+//       .then(({ body }) => {
+//         expect(body.times.length).toBe(1);
+//           expect(body.times[0]).toMatchObject({
+//             opening_time: "12:00:00",
+//             closing_time: "23:00:00",
+//           });
+      
+//       });
+//   });
+// });
 
 describe("GET /api/bookings", () => {
   test("200 status code: returns array of all bookings", () => {
@@ -239,6 +254,64 @@ describe("POST /api/bookings", () => {
         });
       });
   });
+    test("201 status code: responds with rejected booking if booking hours outside opening hours", () => {
+      return request(server)
+        .post("/api/bookings")
+        .send({
+          name: "Pam",
+          start_time: "2024-01-23 09:30:00",
+          number_of_guests: 8,
+        })
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.addedBooking).toMatchObject({
+            name: "Pam",
+            number_of_guests: 8,
+            start_time: "2024-01-23 09:30:00",
+            end_time: "2024-01-23 11:30:00",
+            status: "rejected",
+  
+          });
+        });
+    });
+     test("201 status code: responds with rejected booking if booking hours outside opening hours", () => {
+       return request(server)
+         .post("/api/bookings")
+         .send({
+           name: "Pam",
+           start_time: "2027-01-23 20:30:00",
+           number_of_guests: 2,
+         })
+         .expect(201)
+         .then(({ body }) => {
+           expect(body.addedBooking).toMatchObject({
+             name: "Pam",
+             number_of_guests: 2,
+             start_time: "2027-01-23 20:30:00",
+             end_time: "2027-01-23 22:30:00",
+             status: "rejected",
+           });
+         });
+     });
+       test("201 status code: responds with rejected booking if booking hours outside opening hours", () => {
+         return request(server)
+           .post("/api/bookings")
+           .send({
+             name: "Pam",
+             start_time: "2026-01-23 22:30:00",
+             number_of_guests: 2,
+           })
+           .expect(201)
+           .then(({ body }) => {
+             expect(body.addedBooking).toMatchObject({
+               name: "Pam",
+               number_of_guests: 2,
+               start_time: "2026-01-23 22:30:00",
+               end_time: "2026-01-24 00:30:00",
+               status: "rejected",
+             });
+           });
+       });
 });
 
 describe("DELETE /api/bookings/:booking_id", () => {
@@ -486,5 +559,16 @@ describe("GET /api", () => {
   });
 });
 
-// get opening times 
-// check if booking can be accepted by booking time
+describe("GET /api/times", () => {
+  test("200 status: returns object containing opening and closing times", () => {
+    return request(server)
+      .get("/api/times")
+      .expect(200)
+      .then(({ body}) => {
+        expect(body.times).toMatchObject({
+          openingTime: "11:00:00",
+          closingTime: "21:00:00",
+        });
+  });
+})
+});

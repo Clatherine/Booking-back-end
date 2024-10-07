@@ -17,6 +17,8 @@ const {
   getBookingById,
   getBookingsByTimeSlot
 } = require("./controllers/bookings.controller");
+
+const {getTimes} = require("./controllers/times.controller")
 const { getEndpoints } = require("./controllers/endpoints.controller");
 
 const pool = require("./db/connection");
@@ -26,14 +28,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use((req, res, next) => {
-  // console.log(`Received request: ${req.method} ${req.originalUrl}`);
   next();
 });
 app.get('/api', getEndpoints)
 
 app.get("/api/test-db", async (req, res) => {
   try {
-    const result = await pool.query("SELECT NOW()"); // Test query
+    const result = await pool.query("SELECT NOW()"); 
     res.status(200).send(result.rows);
   } catch (error) {
     console.error("Database connection error:", error);
@@ -45,6 +46,12 @@ app.get("/api/tables/:capacity", getTablesByCapacity);
 
 app.get('/api/tables', getTables)
 
+app.get('/api/times', getTimes)
+
+app.get("/api/bookings", (req, res) => {
+  getBookings(req, res);
+});
+
 app.get('/api/bookings/timeslot/:start_time/:end_time', getBookingsByTimeSlot)
 
 app.get("/api/bookings/date/:date/:table_id", getBookingsByDateAndTable); 
@@ -52,10 +59,6 @@ app.get("/api/bookings/date/:date/:table_id", getBookingsByDateAndTable);
 app.get("/api/bookings/date/:date", getBookingsByDate); 
 
 app.delete("/api/bookings/:booking_id", deleteBooking)
-
-app.get("/api/bookings", (req, res) => {
-  getBookings(req, res);
-});
 
 app.post("/api/bookings", postBooking)
 
@@ -94,8 +97,5 @@ app.use((err, req, res, next) => {
   res.status(500).send({ msg: "Internal Server Error" });
 });
 
-// app.listen(3000, () => {
-//   console.log("Server is running on port 3000");
-// });
 
 module.exports = app;

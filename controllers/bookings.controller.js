@@ -8,7 +8,8 @@ const {
   fetchBookingsByDate,
   fetchBookingsByTimeSlot,
 } = require("../models/bookings.model");
-const db = require("../db/connection");
+const { openingTime, closingTime } = require("../config/times");
+
 const {
   fetchTablesByCapacity,
   fetchTableById,
@@ -46,6 +47,8 @@ exports.postBooking = (req, res, next) => {
       msg: "Incomplete POST request: one or more required fields missing data",
     });
   } else {
+
+
     if (!body.end_time) {
       // Parse start_time into a Date object
       const startTimeDate = new Date(body.start_time);
@@ -61,8 +64,20 @@ exports.postBooking = (req, res, next) => {
         .replace("T", " ")
         .substring(0, 19);
     }
-    if (status === "submitted" || !table_id) {
-      fetchTablesByCapacity(number_of_guests).then((tables) => {
+   
+if (
+  start_time.substring(11) < openingTime ||
+  start_time.substring(11) > closingTime ||
+  body.end_time.substring(11) > closingTime
+) {
+  body.status = "rejected";
+  addBooking(body).then((addedBooking) => {
+    res.status(201).send({ addedBooking });
+  });
+} else {
+  if (status === "submitted" || !table_id) {
+    fetchTablesByCapacity(number_of_guests)
+      .then((tables) => {
         if (!tables.length) {
           body.status = "rejected";
           addBooking(body).then((addedBooking) => {
@@ -104,13 +119,15 @@ exports.postBooking = (req, res, next) => {
             }
           );
         }
-      }).catch(next)
-    } else {
-      addBooking(body).then((addedBooking) => {
-        res.status(201).send({ addedBooking });
-      });
-    }
+      })
+      .catch(next);
+  } else {
+    addBooking(body).then((addedBooking) => {
+      res.status(201).send({ addedBooking });
+    });
   }
+}
+}
 };
 
 // add in what to do if status is submitted:

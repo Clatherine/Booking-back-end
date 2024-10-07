@@ -1,21 +1,13 @@
 const format = require("pg-format");
-const devData = require("../data/development-data/index.js");
 
 const seed = function (knex, data) {
-  const { tablesData, bookingsData, timesData } = data;
+  const { tablesData, bookingsData} = data;
 
-  // Clear existing data and create tables
   return knex.transaction((trx)=>{
 return trx.schema
     .dropTableIfExists("bookings")
     .then(() => trx.schema.dropTableIfExists("tables"))
     .then(() => trx.schema.dropTableIfExists("times"))
-    .then(() => {
-      return trx.schema.createTable("times", (table) => {
-        table.time("opening_time").notNullable();
-        table.time("closing_time").notNullable();
-      });
-    })
     .then(() => {
       return trx.schema.createTable("tables", (table) => {
         table.increments("table_id").primary();
@@ -71,16 +63,7 @@ return trx.schema
       );
       return trx.raw(insertBookingsQueryStr);
     })
-    .then(() => {
-      const insertTimesQueryStr = format(
-        "INSERT INTO times (opening_time, closing_time) VALUES %L;",
-        timesData.map(({ opening_time, closing_time }) => [
-          opening_time,
-          closing_time,
-        ])
-      );
-      return trx.raw(insertTimesQueryStr);
-    })
+    
     .catch((error) => {
       console.error("Error seeding data:", error);
     });
