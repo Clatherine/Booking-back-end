@@ -1,7 +1,7 @@
 const request = require("supertest");
 const app = require("../app.js");
 const db = require("../db/connection.js");
-const seed = require("../db/seeds/seed.js");
+const seed = require("../db/seeds/seed.js").seed;
 const testData = require("../db/data/test-data/index.js");
 jest.setTimeout(10000);
 
@@ -56,21 +56,6 @@ describe("GET /api/tables", () => {
   });
 });
 
-// describe("GET /api/times", () => {
-//   test("200 status code: returns object of times", () => {
-//     return request(server)
-//       .get("/api/times")
-//       .expect(200)
-//       .then(({ body }) => {
-//         expect(body.times.length).toBe(1);
-//           expect(body.times[0]).toMatchObject({
-//             opening_time: "12:00:00",
-//             closing_time: "23:00:00",
-//           });
-      
-//       });
-//   });
-// });
 
 describe("GET /api/bookings", () => {
   test("200 status code: returns array of all bookings", () => {

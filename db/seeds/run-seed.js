@@ -4,7 +4,6 @@ const db = require("../connection.js");
 
 exports.seed = function (knex) {
   console.log('entering run-seed')
-  // Call the seed function with your dev data
   return seedData.seed(knex)
     .then(() => {
       // Optionally, you can end the database connection here.

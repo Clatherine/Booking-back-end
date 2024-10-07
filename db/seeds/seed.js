@@ -1,8 +1,8 @@
 const format = require("pg-format");
+const { tablesData, bookingsData } = require("../data/development-data/index");
 
-const seed = function (knex, data) {
-  const { tablesData, bookingsData} = data;
-
+exports.seed = function (knex, data) {
+  const seedData = data || { tablesData, bookingsData };
   return knex.transaction((trx)=>{
 return trx.schema
     .dropTableIfExists("bookings")
@@ -16,15 +16,15 @@ return trx.schema
       });
     })
     .then(() => {
-      return trx.schema.createTable("bookings", (table) => {
-        table.increments("booking_id").primary();
-        table.string("name").notNullable();
-        table.integer("number_of_guests").notNullable();
-        table.timestamp("start_time").notNullable();
-        table.timestamp("end_time").notNullable();
-        table.string("status").defaultTo("submitted");
-        table.string("notes");
-        table
+      return trx.schema.createTable("bookings", (booking) => {
+        booking.increments("booking_id").primary();
+        booking.string("name").notNullable();
+        booking.integer("number_of_guests").notNullable();
+        booking.timestamp("start_time").notNullable();
+        booking.timestamp("end_time").notNullable();
+        booking.string("status").defaultTo("submitted");
+        booking.string("notes");
+        booking
           .integer("table_id")
           .references("table_id")
           .inTable("tables")
@@ -34,14 +34,14 @@ return trx.schema
     .then(() => {
       const insertTablesQueryStr = format(
         "INSERT INTO tables (capacity, notes) VALUES %L;",
-        tablesData.map(({ capacity, notes }) => [capacity, notes])
+        seedData.tablesData.map(({ capacity, notes }) => [capacity, notes])
       );
       return trx.raw(insertTablesQueryStr);
     })
     .then(() => {
       const insertBookingsQueryStr = format(
         "INSERT INTO bookings (name, number_of_guests, start_time, end_time, status, notes, table_id) VALUES %L;",
-        bookingsData.map(
+        seedData.bookingsData.map(
           ({
             name,
             number_of_guests,
@@ -70,4 +70,4 @@ return trx.schema
   })
 };
 
-module.exports = seed;
+
