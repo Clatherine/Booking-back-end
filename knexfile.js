@@ -1,4 +1,3 @@
-
 const path = require("path");
 const dotenv = require("dotenv");
 const envFile =
@@ -6,7 +5,7 @@ const envFile =
 dotenv.config({ path: path.join(__dirname, envFile) });
 const { DATABASE_URL } = process.env;
 
-
+console.log('databse url:', DATABASE_URL)
 module.exports = {
   development: {
     client: "pg",
@@ -16,7 +15,7 @@ module.exports = {
       password: "",
       database: "booking",
     },
-    pool: { min: 0, max: 10 },
+    pool: { min: 0, max: 5 },
     seeds: {
       directory: "./db/seeds",
     },
@@ -25,7 +24,7 @@ module.exports = {
   production: {
     client: "pg",
     connection: DATABASE_URL,
-    pool: { min: 2, max: 10 },
+    pool: { min: 0, max: 5 },
     seeds: {
       directory: "./db/seeds",
     },

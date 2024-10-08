@@ -14,7 +14,8 @@ const dbConfig = {
     host: process.env.PGHOST,
     port: process.env.PGPORT,
   },
-  pool: { min: 2, max: 10 },
+  pool: { min: 0, max: 5 },
 };
+console.log("Connecting to database with URL:", process.env.DATABASE_URL);
 
 module.exports = knex(dbConfig);

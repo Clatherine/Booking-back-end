@@ -1,10 +1,17 @@
 const format = require("pg-format");
-const { tablesData, bookingsData } = require("../data/development-data/index");
+const defaultKnex = require("../connection.js");
+const devData = require("../data/development-data/index");
 
 exports.seed = function (knex, data) {
-  const seedData = data || { tablesData, bookingsData };
+  console.log('entering seed')
+   const { tablesData, bookingsData } = data || devData;
+
+   if (!tablesData || !bookingsData) {
+     throw new Error("Missing tablesData or bookingsData");
+   }
+
   return knex.transaction((trx)=>{
-return trx.schema
+    return trx.schema
     .dropTableIfExists("bookings")
     .then(() => trx.schema.dropTableIfExists("tables"))
     .then(() => trx.schema.dropTableIfExists("times"))
@@ -34,14 +41,14 @@ return trx.schema
     .then(() => {
       const insertTablesQueryStr = format(
         "INSERT INTO tables (capacity, notes) VALUES %L;",
-        seedData.tablesData.map(({ capacity, notes }) => [capacity, notes])
+        tablesData.map(({ capacity, notes }) => [capacity, notes])
       );
       return trx.raw(insertTablesQueryStr);
     })
     .then(() => {
       const insertBookingsQueryStr = format(
         "INSERT INTO bookings (name, number_of_guests, start_time, end_time, status, notes, table_id) VALUES %L;",
-        seedData.bookingsData.map(
+        bookingsData.map(
           ({
             name,
             number_of_guests,
@@ -63,7 +70,6 @@ return trx.schema
       );
       return trx.raw(insertBookingsQueryStr);
     })
-    
     .catch((error) => {
       console.error("Error seeding data:", error);
     });
