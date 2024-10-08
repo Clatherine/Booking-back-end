@@ -1,9 +1,7 @@
 const format = require("pg-format");
-const defaultKnex = require("../connection.js");
 const devData = require("../data/development-data/index");
 
 exports.seed = function (knex, data) {
-  console.log('entering seed')
    const { tablesData, bookingsData } = data || devData;
 
    if (!tablesData || !bookingsData) {
