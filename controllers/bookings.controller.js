@@ -151,7 +151,7 @@ if (
 
 exports.patchBookingDetails = (req, res, next) => {
   const { booking_id } = req.params;
-  const { status, number_of_guests, start_time, end_time, table_id } = req.body;
+  const { status, number_of_guests, start_time, end_time, table_id, notes } = req.body;
 
   // Fetch the current booking details
   fetchBookingById(booking_id)
@@ -184,6 +184,7 @@ exports.patchBookingDetails = (req, res, next) => {
       if (start_time) updates.start_time = start_time;
       if (end_time) updates.end_time = end_time;
       if (table_id) updates.table_id = table_id; // Only add table_id if provided
+      if (notes) updates.notes = notes
 
       // Call a function to update the booking
       return updateBookingDetails(booking_id, updates);
@@ -193,6 +194,7 @@ exports.patchBookingDetails = (req, res, next) => {
     })
     .catch(next);
 };
+
 exports.getBookingsByDate = (req, res, next) => {
   const { date } = req.params;
 
